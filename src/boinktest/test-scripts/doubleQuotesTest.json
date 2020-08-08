@@ -1,0 +1,1 @@
+{"ProgramSyntax": {"Statements": [{"DeclarationSyntax": {"Variable Type": {"TypeSyntax": {"Token": "<StringType: 'string'>"}},"Name": "a","Expression": {"StringLiteralSyntax": {"Value": "test"}}}}]}}

@@ -1,0 +1,4 @@
+fn thisIsAFunc(int argoneiguess) -> int
+    int result = argoneiguess
+    give result
+;
