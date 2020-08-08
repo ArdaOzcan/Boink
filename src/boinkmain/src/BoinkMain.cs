@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 using Boink.Analysis.Parsing;
@@ -16,6 +17,20 @@ namespace Boink
     /// </summary>
     public static class BoinkMain
     {
+        public static Dictionary<string, string> GetDirCache(string dirPath)
+        {
+            var result = new Dictionary<string, string>();
+            foreach (string file in Directory.GetFiles(dirPath))
+            {
+                string v = Path.GetFileNameWithoutExtension(file);
+                if (Path.GetExtension(file) == ".boink")
+                {
+                    result.Add(v, file);
+                }
+            }
+
+            return result;
+        }
         /// <summary>
         /// Handle the Boink command 'parse' with the given arguments.
         /// </summary>
@@ -70,6 +85,7 @@ namespace Boink
                 return;
             }
 
+            GetDirCache(Path.GetDirectoryName(filePath));
             string text = TextOperations.ReadFileNormalized(filePath);
 
             // ErrorHandler Handler for exceptions during lexing, parsing and semantic analysis.
@@ -93,7 +109,8 @@ namespace Boink
                 errorHandler.WriteAll();
             else
             {
-                var interpreter = new Interpreter(pathDirectory);
+                var dirCache = GetDirCache(pathDirectory);
+                var interpreter = new Interpreter(pathDirectory, dirCache);
                 interpreter.Interpret(root, true);
             }
         }
