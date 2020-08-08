@@ -18,7 +18,16 @@ namespace Boink.AST.Nodes
 
         public override int Pos => LiteralToken.Pos;
 
-        public override Type Type => typeof(string_);
+        public override Type Type 
+        {
+            get
+            {
+                if(ChildReference != null)
+                    return ChildReference.Type;
+                    
+                return typeof(string_);
+            }
+        }
 
         public override Dictionary<string, object> JsonDict
         {

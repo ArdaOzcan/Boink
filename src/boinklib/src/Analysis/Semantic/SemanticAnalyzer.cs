@@ -226,11 +226,6 @@ namespace Boink.Analysis.Semantic
                 // Set this node's type to the symbol's type.
                 node.VarType = symbol.VarType;
 
-                if (parentNodeIsVar)
-                    // Set the parent node's type to this variable's type.
-                    ((VariableSyntax)parentNode).VarType = node.VarType;
-
-
                 if (node.ChildReference != null)
                     // Visit child reference.
                     Visit(node.ChildReference);
@@ -403,10 +398,6 @@ namespace Boink.Analysis.Semantic
             // Function has been defined before.
             if (functionSymbol != null)
             {
-                // Set the parent's variable type to this function's give type is it is a variable.
-                if (parentNodeIsVar)
-                    ((VariableSyntax)parentNode).VarType = functionSymbol.GiveType;
-
                 // Set this node's variable type to this function's give type.
                 node.VarType = functionSymbol.GiveType;
 

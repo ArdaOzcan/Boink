@@ -18,7 +18,16 @@ namespace Boink.AST.Nodes
 
         public override int Pos => Var.VarToken.Pos;
 
-        public override Type Type => VarType;
+        public override Type Type
+        {
+            get
+            {
+                if(ChildReference != null)
+                    return ChildReference.Type;
+
+                return VarType;
+            }
+        }
 
         public override Dictionary<string, object> JsonDict
         {

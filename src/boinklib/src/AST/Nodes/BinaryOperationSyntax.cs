@@ -25,6 +25,10 @@ namespace Boink.AST.Nodes
         {
             get
             {
+                if(ChildReference != null)
+                    return ChildReference.Type;
+                
+                
                 Type leftType = Left.Type;
                 Type rightType = Right.Type;
 

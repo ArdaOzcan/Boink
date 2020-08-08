@@ -23,7 +23,16 @@ namespace Boink.AST.Nodes
         /// </summary>
         public Type VarType { get; set; }
 
-        public override Type Type => VarType;
+        public override Type Type 
+        {
+            get
+            {
+                if(ChildReference != null)
+                    return ChildReference.Type;
+
+                return VarType;
+            }
+        } 
 
         public override int Pos => VarToken.Pos;
 

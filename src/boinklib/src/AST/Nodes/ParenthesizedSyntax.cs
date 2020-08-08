@@ -14,7 +14,16 @@ namespace Boink.AST.Nodes
 
         public override int Pos => Expr.Pos - 1;
 
-        public override Type Type => Expr.Type;
+        public override Type Type 
+        {
+            get
+            {
+                if(ChildReference != null)
+                    return ChildReference.Type;
+                    
+                return Expr.Type;
+            }
+        }
 
         public override Dictionary<string, object> JsonDict
         {
