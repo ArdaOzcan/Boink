@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+
 using Boink.Analysis.Parsing;
-using Boink.Analysis.Semantic;
 using Boink.Analysis.Tokenization;
 using Boink.AST;
 using Boink.AST.Nodes;
@@ -25,13 +25,16 @@ namespace Boink.Interpretation
 
         public bool Verbose { get; private set; }
 
+        public Dictionary<string, string> DirCache { get; private set; }
+
         public string ProgramDirectory { get; }
 
         /// <summary>
         /// Construct an Interpreter object.
         /// </summary>
-        public Interpreter(string programDirectory)
+        public Interpreter(string programDirectory, Dictionary<string, string> dirCache)
         {
+            DirCache = dirCache;
             ProgramCallStack = new CallStack();
             ProgramLibraryManager = new LibraryManager();
             ProgramDirectory = programDirectory;
@@ -348,39 +351,36 @@ namespace Boink.Interpretation
         /// Visit the expression.
         /// </summary>
         /// <param name="node">Parenthesized syntax node.</param>
-        /// <returns></returns>
+        /// <returns>What is returned from the expression.</returns>
         public override object Visit(ParenthesizedSyntax node) => Visit(node.Expr);
 
         public override object Visit(StringLiteralSyntax node) => new string_(null, (string)node.Val);
 
         public override object Visit(ImportSyntax node)
         {
-            foreach (string file in Directory.GetFiles(ProgramDirectory))
+            if(DirCache.ContainsKey(node.LibName))
             {
-                if (Path.GetExtension(file) == ".boink" &&
-                    Path.GetFileNameWithoutExtension(file) == node.LibName)
-                {
-                    string text = TextOperations.ReadFileNormalized(file);
+                string file = DirCache[node.LibName];
+                string text = TextOperations.ReadFileNormalized(file);
 
-                    // ErrorHandler Handler for exceptions during lexing, parsing and semantic analysis.
-                    var lexer = new Lexer(text);
+                // ErrorHandler Handler for exceptions during lexing, parsing and semantic analysis.
+                var lexer = new Lexer(text);
 
-                    // ErrorHandler Assign lexer to convert positions to line and offset.
-                    var parser = new Parser(lexer);
+                // ErrorHandler Assign lexer to convert positions to line and offset.
+                var parser = new Parser(lexer);
 
-                    // Root node of the program a.k.a. the program itself.
-                    // Argument is the program name which is equivalent to file's name.
-                    var root = parser.Parse(Path.GetFileName(file));
+                // Root node of the program a.k.a. the program itself.
+                // Argument is the program name which is equivalent to file's name.
+                var root = parser.Parse(Path.GetFileName(file));
 
-                    string programDirectory = Path.GetDirectoryName(file);
-                    var interpreter = new Interpreter(programDirectory);
-                    var libAR = interpreter.Interpret(root);
+                string programDirectory = Path.GetDirectoryName(file);
+                var interpreter = new Interpreter(programDirectory, DirCache);
+                var libAR = interpreter.Interpret(root);
 
-                    ActivationRecord ar = ProgramCallStack.Peek;
-                    ar[node.LibName] = new lib_(node.LibName, libAR);
+                ActivationRecord ar = ProgramCallStack.Peek;
+                ar[node.LibName] = new lib_(node.LibName, libAR);
 
-                    return null;
-                }
+                return null;
             }
             
             string dllName = node.LibName + ".dll";
