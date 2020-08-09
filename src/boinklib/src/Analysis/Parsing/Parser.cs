@@ -134,7 +134,7 @@ namespace Boink.Analysis.Parsing
             if (!tokenTypes.Contains(CurrentToken.Type))
             {
                 // Throw a Boink error if the current token is not inside the set.
-                ErrorHandler.Throw(new UnexpectedTokenError($"Expected one of {tokenTypes} instead of {CurrentToken.Type} {CurrentToken.Val}",
+                ErrorHandler.Throw(new UnexpectedTokenError($"Expected one of {{ {string.Join(", ", tokenTypes)} }} instead of {CurrentToken.Type} {CurrentToken.Val}",
                                                             CurrentToken.Pos));
             }
 
@@ -689,10 +689,26 @@ namespace Boink.Analysis.Parsing
             var importToken = CurrentToken;
             Consume(TokenType.Import);
 
-            var libName = CurrentToken.Val;
-            Consume(TokenType.Word);
+            var package = ParsePackage();
 
-            return new ImportSyntax(importToken, (string)libName);
+            return new ImportSyntax(importToken, package);
+        }
+
+        private PackageSyntax ParsePackage()
+        {
+            var hierarchy = new List<string>();
+            while(CurrentToken.Type == TokenType.Word)
+            {
+                hierarchy.Add((string)CurrentToken.Val);
+                Consume(TokenType.Word);
+
+                if(CurrentToken.Type != TokenType.Dot)
+                    break;
+
+                Consume(TokenType.Dot);
+            }
+
+            return new PackageSyntax(hierarchy);
         }
 
         /// <summary>

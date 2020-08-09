@@ -25,6 +25,8 @@ namespace Boink.Analysis.Semantic
     {
         public List<string> Logs { get; set; }
 
+        public DirectoryCache DirCache { get; }
+
         public void AddLog(string log) => Logs.Add(log);
 
         /// <summary>
@@ -58,10 +60,11 @@ namespace Boink.Analysis.Semantic
         /// <summary>
         /// Construct a SemanticAnalyzer object.
         /// </summary>
-        public SemanticAnalyzer(string programDirectory)
+        public SemanticAnalyzer(string programDirectory, DirectoryCache dirCache)
         {
             Logs = new List<string>();
             ProgramDirectory = programDirectory;
+            DirCache = dirCache;
         }
 
         /// <summary>
@@ -206,10 +209,10 @@ namespace Boink.Analysis.Semantic
                 // Symbol of the parent node.
                 Symbol parentSymbol = CurrentScope.Lookup(parentNodeAsVar.Name);
 
-                // Check if the parent node is a LibrarySymbol.
+                // Check if the parent node is a PackageSymbol.
                 // Set the parentScope to the global scope of the library if true.
-                if (parentSymbol.GetType() == typeof(LibrarySymbol))
-                    parentScope = ((LibrarySymbol)parentSymbol).GlobalScope;
+                if (parentSymbol.GetType() == typeof(PackageSymbol))
+                    parentScope = ((PackageSymbol)parentSymbol).GlobalScope;
             }
 
             // Symbol of the referenced variable.
@@ -377,8 +380,8 @@ namespace Boink.Analysis.Semantic
 
                 // Check if the parent node is a LibrarySymbol.
                 // Set the parentScope to the global scope of the library if true.
-                if (parentSymbol.GetType() == typeof(LibrarySymbol))
-                    parentScope = ((LibrarySymbol)parentSymbol).GlobalScope;
+                if (parentSymbol.GetType() == typeof(PackageSymbol))
+                    parentScope = ((PackageSymbol)parentSymbol).GlobalScope;
             }
 
             // Symbol of the referenced variable.
@@ -532,63 +535,62 @@ namespace Boink.Analysis.Semantic
         }
 
         /// <summary>
-        /// Import a library if any was found, throw an error otherwise.
+        /// Import a library or a package if any was found, throw an error otherwise.
         /// </summary>
         /// <param name="node">Import syntax node.</param>
         /// <returns>Null.</returns>
         public override object Visit(ImportSyntax node)
         {
-            // TODO: Create some kind of cache for the files in a dir
-            //       like Python.
-            foreach (string file in Directory.GetFiles(ProgramDirectory))
+            if(DirCache.HasLibraryOrPackage(node.Package.Hierarchy))
             {
-                // Continue if the extension is not .boink or
-                // the filename doesn't equal the requested library name.
-                if (Path.GetExtension(file) != ".boink" ||
-                    Path.GetFileNameWithoutExtension(file) != node.LibName)
-                    continue;
-                
+                var importableInfo = DirCache.GetLibraryOrPackage(node.Package.Hierarchy);
+                if(importableInfo.IsPackage)
+                {    
+                    // Read the package.
+                    string text = TextOperations.ReadFileNormalized(importableInfo.Path);
 
-                // Read the library.
-                string text = TextOperations.ReadFileNormalized(file);
+                    // Lex the package.
+                    var lexer = new Lexer(text);
 
-                // Lex the library.
-                var lexer = new Lexer(text);
+                    var parser = new Parser(lexer);
 
-                var parser = new Parser(lexer);
+                    
+                    // Parse the package.
+                    var root = parser.Parse(importableInfo.Name);
 
-                
-                // Parse the library.
-                var root = parser.Parse(Path.GetFileName(file));
+                    var symbolTreeBuilder = new SemanticAnalyzer(Path.GetDirectoryName(importableInfo.Path), DirCache);
 
-                var symbolTreeBuilder = new SemanticAnalyzer(Path.GetDirectoryName(file));
+                    // Semantically analyze the package.
+                    symbolTreeBuilder.Visit(root);
 
-                // Semantically analyze the library.
-                symbolTreeBuilder.Visit(root);
+                    // Write all logs.
+                    symbolTreeBuilder.WriteAll();
 
-                // Write all logs.
-                symbolTreeBuilder.WriteAll();
+                    // Create a package symbol for the package.
+                    PackageSymbol symbol = new PackageSymbol(importableInfo.Name, root);
 
-                // Create a library symbol for the library.
-                LibrarySymbol symbol = new LibrarySymbol(node.LibName, root);
+                    // Set the global scope.
+                    symbol.GlobalScope = symbolTreeBuilder.GlobalScope;
 
-                // Set the global scope.
-                symbol.GlobalScope = symbolTreeBuilder.GlobalScope;
+                    // Define the package.
+                    CurrentScope.Define(symbol);
 
-                // Define the library.
-                CurrentScope.Define(symbol);
-
-                // Add log.
-                AddLog($"IMPORT: Library '{node.LibName}' imported.");
-                return null;
+                    // Add log.
+                    AddLog($"IMPORT: Package '{node.Package}' imported.");
+                    return null;
+                }
+                else
+                {
+                    // Do library import
+                }
             }
 
             // Return if there is a standard library as the requested library name.
-            if (LibraryManager.StandardLibraries.Contains(node.LibName))
-                return null;
+            // if (LibraryManager.StandardLibraries.Contains(node.Package))
+            //     return null;
             
             // Throw a Boink error if no library could be found.
-            ErrorHandler.Throw(new UnknownLibraryError($"Library {node.LibName} not found",
+            ErrorHandler.Throw(new UnknownLibraryError($"Library '{node.Package.HierarchyString}' not found",
                                                        node.ImportToken.Pos));
 
             return null;

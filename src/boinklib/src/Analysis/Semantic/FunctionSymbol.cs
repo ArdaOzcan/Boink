@@ -32,6 +32,6 @@ namespace Boink.Analysis.Semantic
             GiveType = giveType;
         }
 
-        public override string ToString() => $"{VarType} {ArgTypes} {Name}";
+        public override string ToString() => $"{VarType} {string.Join(", ", ArgTypes)} {Name}";
     }
 }

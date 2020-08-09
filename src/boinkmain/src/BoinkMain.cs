@@ -7,6 +7,7 @@ using Boink.Analysis.Semantic;
 using Boink.Analysis.Tokenization;
 using Boink.Errors;
 using Boink.Interpretation;
+using Boink.Interpretation.Library;
 using Boink.Text;
 
 namespace Boink
@@ -17,20 +18,6 @@ namespace Boink
     /// </summary>
     public static class BoinkMain
     {
-        public static Dictionary<string, string> GetDirCache(string dirPath)
-        {
-            var result = new Dictionary<string, string>();
-            foreach (string file in Directory.GetFiles(dirPath))
-            {
-                string v = Path.GetFileNameWithoutExtension(file);
-                if (Path.GetExtension(file) == ".boink")
-                {
-                    result.Add(v, file);
-                }
-            }
-
-            return result;
-        }
         /// <summary>
         /// Handle the Boink command 'parse' with the given arguments.
         /// </summary>
@@ -85,7 +72,7 @@ namespace Boink
                 return;
             }
 
-            GetDirCache(Path.GetDirectoryName(filePath));
+            var dirCache = new DirectoryCache(Path.GetDirectoryName(filePath));
             string text = TextOperations.ReadFileNormalized(filePath);
 
             // ErrorHandler Handler for exceptions during lexing, parsing and semantic analysis.
@@ -100,7 +87,7 @@ namespace Boink
             var root = parser.Parse(Path.GetFileName(filePath));
 
             string pathDirectory = Path.GetDirectoryName(filePath);
-            var symbolTreeBuilder = new SemanticAnalyzer(pathDirectory);
+            var symbolTreeBuilder = new SemanticAnalyzer(pathDirectory, dirCache);
             symbolTreeBuilder.Visit(root);
 
             symbolTreeBuilder.WriteAll();
@@ -109,7 +96,6 @@ namespace Boink
                 errorHandler.WriteAll();
             else
             {
-                var dirCache = GetDirCache(pathDirectory);
                 var interpreter = new Interpreter(pathDirectory, dirCache);
                 interpreter.Interpret(root, true);
             }

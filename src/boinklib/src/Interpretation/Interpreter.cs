@@ -25,14 +25,14 @@ namespace Boink.Interpretation
 
         public bool Verbose { get; private set; }
 
-        public Dictionary<string, string> DirCache { get; private set; }
+        public DirectoryCache DirCache { get; }
 
         public string ProgramDirectory { get; }
 
         /// <summary>
         /// Construct an Interpreter object.
         /// </summary>
-        public Interpreter(string programDirectory, Dictionary<string, string> dirCache)
+        public Interpreter(string programDirectory, DirectoryCache dirCache)
         {
             DirCache = dirCache;
             ProgramCallStack = new CallStack();
@@ -120,7 +120,7 @@ namespace Boink.Interpretation
             {
                 VariableSyntax parentReference = ((VariableSyntax)node.Var.ParentReference);
                 obj_ var = ProgramCallStack.Peek[parentReference.Name];
-                if(var.GetType() == typeof(lib_))
+                if(var.GetType() == typeof(package_))
                     libRecord = (ActivationRecord)var.Val;
             }
 
@@ -212,7 +212,7 @@ namespace Boink.Interpretation
             if(node.ParentReference != null && node.ParentReference.GetType() == typeof(VariableSyntax))
             {
                 var = ProgramCallStack.Peek[((VariableSyntax)node.ParentReference).Name];
-                if(var.GetType() == typeof(lib_))
+                if(var.GetType() == typeof(package_))
                     parentRecord = (ActivationRecord)var.Val;
             }
 
@@ -358,10 +358,10 @@ namespace Boink.Interpretation
 
         public override object Visit(ImportSyntax node)
         {
-            if(DirCache.ContainsKey(node.LibName))
+            if(DirCache.HasLibraryOrPackage(node.Package.Hierarchy))
             {
-                string file = DirCache[node.LibName];
-                string text = TextOperations.ReadFileNormalized(file);
+                var importableInfo = DirCache.GetLibraryOrPackage(node.Package.Hierarchy);
+                string text = TextOperations.ReadFileNormalized(importableInfo.Path);
 
                 // ErrorHandler Handler for exceptions during lexing, parsing and semantic analysis.
                 var lexer = new Lexer(text);
@@ -371,19 +371,20 @@ namespace Boink.Interpretation
 
                 // Root node of the program a.k.a. the program itself.
                 // Argument is the program name which is equivalent to file's name.
-                var root = parser.Parse(Path.GetFileName(file));
+                string fileName = Path.GetFileName(importableInfo.Path);
+                var root = parser.Parse(fileName);
 
-                string programDirectory = Path.GetDirectoryName(file);
+                string programDirectory = Path.GetDirectoryName(importableInfo.Path);
                 var interpreter = new Interpreter(programDirectory, DirCache);
-                var libAR = interpreter.Interpret(root);
+                var libRecord = interpreter.Interpret(root);
 
                 ActivationRecord ar = ProgramCallStack.Peek;
-                ar[node.LibName] = new lib_(node.LibName, libAR);
+                ar[importableInfo.Name] = new package_(importableInfo.Name, libRecord);
 
                 return null;
             }
             
-            string dllName = node.LibName + ".dll";
+            string dllName = node.Package + ".dll";
             string dllPath = Path.Combine(PathInformation.BoinkExecutableDirectory, dllName);
             ProgramLibraryManager.LoadLibrary(dllPath);
             return null;

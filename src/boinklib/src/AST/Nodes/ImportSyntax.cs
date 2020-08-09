@@ -7,7 +7,7 @@ namespace Boink.AST.Nodes
     {
         public Token ImportToken { get; private set; }
         
-        public string LibName { get; private set; }
+        public PackageSyntax Package { get; private set; }
 
         public override int Pos => ImportToken.Pos;
 
@@ -18,7 +18,7 @@ namespace Boink.AST.Nodes
                 var result = new Dictionary<string, object>();
                 var dict = new Dictionary<string, object>();
 
-                dict.Add("Library Name", LibName);
+                dict.Add("Package", Package.JsonDict);
                 result.Add("ImportSyntax", dict);
 
                 return result;
@@ -29,11 +29,11 @@ namespace Boink.AST.Nodes
         /// Construct an ImportSyntax object.
         /// </summary>
         /// <param name="importToken">Toke</param>
-        /// <param name="libName"></param>
-        public ImportSyntax(Token importToken, string libName)
+        /// <param name="package"></param>
+        public ImportSyntax(Token importToken, PackageSyntax package)
         {
             ImportToken = importToken;
-            LibName = libName;
+            Package = package;
         }
     }
 }

@@ -22,19 +22,9 @@ namespace Boink.AST.Nodes
         {
             get
             {
-                switch (VarType.TypeToken.Type)
-                {
-                    case TokenType.DynamicType:
-                        return typeof(dyn_);
-                    case TokenType.IntType:
-                        return typeof(int_);
-                    case TokenType.BoolType:
-                        return typeof(bool_);
-                    case TokenType.FloatType:
-                        return typeof(float_);
-                    default:
-                        return null;
-                }
+                Type type = null;
+                obj_.TypeDictionary.TryGetValue(VarType.TypeToken.Type, out type);
+                return type;
             }
         }
 

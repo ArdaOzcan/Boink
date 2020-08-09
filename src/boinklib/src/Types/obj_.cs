@@ -9,7 +9,7 @@ namespace Boink.Types
     /// <summary>Base class for all built-in types</summary>
     public class obj_
     {
-        static Dictionary<TokenType, Type> TypeDictionary = new Dictionary<TokenType, Type> 
+        public static Dictionary<TokenType, Type> TypeDictionary = new Dictionary<TokenType, Type> 
         { 
             { TokenType.DynamicType, typeof(dyn_) },
             { TokenType.IntType, typeof(int_) },
