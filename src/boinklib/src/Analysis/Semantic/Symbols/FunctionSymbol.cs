@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Boink.Types;
 
-namespace Boink.Analysis.Semantic
+namespace Boink.Analysis.Semantic.Symbols
 {
     /// <summary>
     /// Special symbol for functions.

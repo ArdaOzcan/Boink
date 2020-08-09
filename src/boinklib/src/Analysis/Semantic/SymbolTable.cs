@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 
+using Boink.Analysis.Semantic.Symbols;
+
 namespace Boink.Analysis.Semantic
 {
 

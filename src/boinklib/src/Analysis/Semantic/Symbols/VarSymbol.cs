@@ -1,6 +1,6 @@
 using System;
 
-namespace Boink.Analysis.Semantic
+namespace Boink.Analysis.Semantic.Symbols
 {
     /// <summary>
     /// Symbol for variables. Same as the base class.

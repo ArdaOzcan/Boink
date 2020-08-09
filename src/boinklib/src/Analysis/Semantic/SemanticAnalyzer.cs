@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 
 using Boink.Analysis.Parsing;
+using Boink.Analysis.Semantic.Symbols;
 using Boink.Analysis.Tokenization;
 using Boink.AST;
 using Boink.AST.Nodes;
@@ -10,6 +11,7 @@ using Boink.Errors;
 using Boink.Interpretation.Library;
 using Boink.Logging;
 using Boink.Text;
+
 using Boink.Types;
 
 namespace Boink.Analysis.Semantic
