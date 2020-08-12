@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
+
+using Boink.Analysis.Semantic;
 using Boink.Analysis.Tokenization;
+
+using Boink.Interpretation;
 
 namespace Boink.AST.Nodes
 {
@@ -8,9 +12,11 @@ namespace Boink.AST.Nodes
     /// SyntaxNode that represents a variable reference.
     /// </summary>
     public class VariableSyntax : SyntaxNode, IParentSyntax
-    {
-        public SyntaxNode ParentReference { get; set; }
-        
+    {        
+        public SymbolTable ParentScope { get; set ;}
+
+        public ActivationRecord ParentRecord { get; set ;}
+
         public SyntaxNode ChildReference { get; set; }
 
         public Token VarToken { get; private set; }
@@ -60,7 +66,7 @@ namespace Boink.AST.Nodes
         public VariableSyntax(Token token)
         {
             VarToken = token;
-            Name = (string) token.Val;
+            Name = (string)token.Val;
             VarType = null;
         }
     }

@@ -113,36 +113,25 @@ namespace Boink.Interpretation
         /// <returns>Give value of the function if there is any.</returns>
         public override object Visit(FunctionCallSyntax node)
         {
-            ActivationRecord libRecord = null;
-
-            bool varParentIsVar = node.Var.ParentReference != null && node.Var.ParentReference.GetType() == typeof(VariableSyntax);
-            if (varParentIsVar)
-            {
-                VariableSyntax parentReference = ((VariableSyntax)node.Var.ParentReference);
-                obj_ var = ProgramCallStack.Peek[parentReference.Name];
-                if(var.GetType() == typeof(package_))
-                    libRecord = (ActivationRecord)var.Val;
-            }
-
             string funcName = node.Var.Name;
 
             ActivationRecord parentRecord;
 
-            if(libRecord == null)
+            if(node.Var.ParentRecord == null)
                 parentRecord = ProgramCallStack.Peek;
             else
-                parentRecord = libRecord;
+                parentRecord = node.Var.ParentRecord;
 
-            function_ funcSymbol = (function_)parentRecord[funcName];
+            function_ func = (function_)parentRecord[funcName];
 
             ActivationRecord functionRecord = new ActivationRecord(
                 name: funcName,
                 nestingLevel: parentRecord.NestingLevel + 1,
                 parentRecord: parentRecord,
-                owner: funcSymbol
+                owner: func
             );
 
-            List<DeclarationSyntax> argDecls = funcSymbol.Args;
+            List<DeclarationSyntax> argDecls = func.Args;
             List<SyntaxNode> passedArgs = node.Args;
 
             for (int i = 0; i < argDecls.Count; i++)
@@ -167,12 +156,12 @@ namespace Boink.Interpretation
             ProgramCallStack.Push(functionRecord);
             WriteLineIfVerbose($"------- START OF FUNCTION {funcName} -------");
 
-            foreach (SyntaxNode s in (List<SyntaxNode>)funcSymbol.Val)
+            foreach (SyntaxNode s in (List<SyntaxNode>)func.Val)
             {
                 Visit(s);
-                if (funcSymbol.Gave)
+                if (func.Gave)
                 {
-                    funcSymbol.Gave = false;
+                    func.Gave = false;
                     break;
                 }
             }
@@ -181,7 +170,7 @@ namespace Boink.Interpretation
             WriteLineIfVerbose(ProgramCallStack.ToString());
 
             ProgramCallStack.Pop();
-            return funcSymbol.GiveVal;
+            return func.GiveVal;
         }
 
         /// <summary>
@@ -207,25 +196,29 @@ namespace Boink.Interpretation
         {
             string varName = node.Name;
 
-            ActivationRecord parentRecord = null;
             obj_ var;
-            if(node.ParentReference != null && node.ParentReference.GetType() == typeof(VariableSyntax))
-            {
-                var = ProgramCallStack.Peek[((VariableSyntax)node.ParentReference).Name];
-                if(var.GetType() == typeof(package_))
-                    parentRecord = (ActivationRecord)var.Val;
-            }
 
-            ActivationRecord ar;
-            if(parentRecord == null)
-                ar = ProgramCallStack.Peek;
+            if(node.ParentRecord == null)
+                var = ProgramCallStack.Peek[varName];
             else
-                ar = parentRecord;
-
-            var = ar[varName];
+                var = node.ParentRecord[varName];
 
             if(node.ChildReference != null)
             {
+                Type type = var.GetType();
+                if (type == typeof(package_) || type == typeof(lib_))
+                {
+                    Type childType = node.ChildReference.GetType();
+                    ActivationRecord record = (ActivationRecord)var.Val;
+
+                    if (childType == typeof(VariableSyntax))
+                        ((VariableSyntax)node.ChildReference).ParentRecord = record;
+    
+                    else if(childType == typeof(FunctionCallSyntax))
+                        ((FunctionCallSyntax)node.ChildReference).Var.ParentRecord = record;
+                    
+                }
+
                 var = (obj_)Visit(node.ChildReference);
             }
 
@@ -360,27 +353,9 @@ namespace Boink.Interpretation
         {
             if(DirCache.HasLibraryOrPackage(node.Package.Hierarchy))
             {
-                var importableInfo = DirCache.GetLibraryOrPackage(node.Package.Hierarchy);
-                string text = TextOperations.ReadFileNormalized(importableInfo.Path);
-
-                // ErrorHandler Handler for exceptions during lexing, parsing and semantic analysis.
-                var lexer = new Lexer(text);
-
-                // ErrorHandler Assign lexer to convert positions to line and offset.
-                var parser = new Parser(lexer);
-
-                // Root node of the program a.k.a. the program itself.
-                // Argument is the program name which is equivalent to file's name.
-                string fileName = Path.GetFileName(importableInfo.Path);
-                var root = parser.Parse(fileName);
-
-                string programDirectory = Path.GetDirectoryName(importableInfo.Path);
-                var interpreter = new Interpreter(programDirectory, DirCache);
-                var libRecord = interpreter.Interpret(root);
-
-                ActivationRecord ar = ProgramCallStack.Peek;
-                ar[importableInfo.Name] = new package_(importableInfo.Name, libRecord);
-
+                var importable = DirCache.GetLibraryOrPackageObject(node.Package.Hierarchy);
+                ProgramCallStack.Peek[importable.Name] = importable;
+                
                 return null;
             }
             

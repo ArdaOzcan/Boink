@@ -15,7 +15,9 @@ namespace Boink.Interpretation
     /// for parent record. This way the interpreter can check the parent's 
     /// memory to find some variables that were not declared in its scope.</para>
     /// </summary>
-    /// <para>Example:
+    /// <para>
+    /// 
+    /// *Example:*
     /// <code>
     ///  fn increment(int a)
     ///      int c = a + 1

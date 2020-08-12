@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 
-using Boink.Analysis.Parsing;
 using Boink.Analysis.Semantic.Symbols;
-using Boink.Analysis.Tokenization;
 using Boink.AST;
 using Boink.AST.Nodes;
 using Boink.Errors;
 using Boink.Interpretation.Library;
 using Boink.Logging;
-using Boink.Text;
 
 using Boink.Types;
 
@@ -192,38 +188,15 @@ namespace Boink.Analysis.Semantic
         /// <returns>Null.</returns>
         public override object Visit(VariableSyntax node)
         {
-            // Parent node of this variable if there is any.
-            var parentNode = node.ParentReference;
-
-            // Scope of the parent (e.g. a library) if there is any.
-            SymbolTable parentScope = null;
-
-            // Is the parent node is a VariableSyntax?
-            bool parentNodeIsVar = (parentNode != null &&
-                                    parentNode.GetType() == typeof(VariableSyntax));
-
-            // Check if the parent node is a VariableSyntax.
-            if (parentNodeIsVar)
-            {
-                // Parent node as a VariableSyntax.
-                VariableSyntax parentNodeAsVar = (VariableSyntax)parentNode;
-
-                // Symbol of the parent node.
-                Symbol parentSymbol = CurrentScope.Lookup(parentNodeAsVar.Name);
-
-                // Check if the parent node is a PackageSymbol.
-                // Set the parentScope to the global scope of the library if true.
-                if (parentSymbol.GetType() == typeof(PackageSymbol))
-                    parentScope = ((PackageSymbol)parentSymbol).GlobalScope;
-            }
-
             // Symbol of the referenced variable.
             Symbol symbol;
 
             // If there isn't any parent scope, lookup from the current scope.
             // Otherwise lookup from the parent scope.
-            if (parentScope == null) symbol = CurrentScope.Lookup(node.Name);
-            else symbol = parentScope.Lookup(node.Name);
+            if(node.ParentScope != null)
+                symbol = node.ParentScope.Lookup(node.Name);
+            else
+                symbol = CurrentScope.Lookup(node.Name);
 
             // Check if the symbol is defined.
             if (symbol != null)
@@ -232,8 +205,25 @@ namespace Boink.Analysis.Semantic
                 node.VarType = symbol.VarType;
 
                 if (node.ChildReference != null)
-                    // Visit child reference.
+                {
+                    SymbolTable parentScope = null;
+
+                    if(symbol.GetType() == typeof(PackageSymbol))
+                        parentScope = ((PackageSymbol)symbol).GlobalScope;
+
+                    else if(symbol.GetType() == typeof(LibrarySymbol))
+                        parentScope = ((LibrarySymbol)symbol).Importables;
+
+
+                    if(node.ChildReference.GetType() == typeof(VariableSyntax))
+                        ((VariableSyntax)node.ChildReference).ParentScope = parentScope;
+                    
+                    else if(node.ChildReference.GetType() == typeof(FunctionCallSyntax))
+                        ((FunctionCallSyntax)node.ChildReference).Var.ParentScope = parentScope;
+
+
                     Visit(node.ChildReference);
+                }
 
                 return null;
             }
@@ -363,29 +353,6 @@ namespace Boink.Analysis.Semantic
         /// <returns>Null.</returns>
         public override object Visit(FunctionCallSyntax node)
         {
-            // Parent node of this variable if there is any.
-            SyntaxNode parentNode = node.Var.ParentReference;
-
-            // Scope of the parent (e.g. a library) if there is any.
-            SymbolTable parentScope = null;
-
-            // Is the parent node is a VariableSyntax?
-            bool parentNodeIsVar = (parentNode != null &&
-                                    parentNode.GetType() == typeof(VariableSyntax));
-            if (parentNodeIsVar)
-            {
-                // Parent node as a VariableSyntax.
-                VariableSyntax parentNodeVar = (VariableSyntax)parentNode;
-
-                // Symbol of the parent node.
-                Symbol parentSymbol = CurrentScope.Lookup(parentNodeVar.Name);
-
-                // Check if the parent node is a LibrarySymbol.
-                // Set the parentScope to the global scope of the library if true.
-                if (parentSymbol.GetType() == typeof(PackageSymbol))
-                    parentScope = ((PackageSymbol)parentSymbol).GlobalScope;
-            }
-
             // Symbol of the referenced variable.
             Symbol symbol;
 
@@ -394,8 +361,10 @@ namespace Boink.Analysis.Semantic
 
             // If there isn't any parent scope, lookup from the current scope.
             // Otherwise lookup from the parent scope.
-            if (parentScope == null) symbol = CurrentScope.Lookup(node.Var.Name);
-            else symbol = parentScope.Lookup(node.Var.Name);
+            if(node.Var.ParentScope != null)
+                symbol = node.Var.ParentScope.Lookup(node.Var.Name);
+            else
+                symbol = CurrentScope.Lookup(node.Var.Name);
 
             // Set functionSymbol to "as" casted symbol.
             functionSymbol = (symbol as FunctionSymbol);
@@ -545,49 +514,22 @@ namespace Boink.Analysis.Semantic
         {
             if(DirCache.HasLibraryOrPackage(node.Package.Hierarchy))
             {
-                var importableInfo = DirCache.GetLibraryOrPackage(node.Package.Hierarchy);
-                if(importableInfo.IsPackage)
-                {    
-                    // Read the package.
-                    string text = TextOperations.ReadFileNormalized(importableInfo.Path);
-
-                    // Lex the package.
-                    var lexer = new Lexer(text);
-
-                    var parser = new Parser(lexer);
-
-                    
-                    // Parse the package.
-                    var root = parser.Parse(importableInfo.Name);
-
-                    var symbolTreeBuilder = new SemanticAnalyzer(Path.GetDirectoryName(importableInfo.Path), DirCache);
-
-                    // Semantically analyze the package.
-                    symbolTreeBuilder.Visit(root);
-
-                    // Write all logs.
-                    symbolTreeBuilder.WriteAll();
-
-                    // Create a package symbol for the package.
-                    PackageSymbol symbol = new PackageSymbol(importableInfo.Name, root);
-
-                    // Set the global scope.
-                    symbol.GlobalScope = symbolTreeBuilder.GlobalScope;
-
-                    // Define the package.
-                    CurrentScope.Define(symbol);
-
-                    // Add log.
-                    AddLog($"IMPORT: Package '{node.Package}' imported.");
+                var symbol = DirCache.GetLibraryOrPackageSymbol(node.Package.Hierarchy);
+                AddLog($"IMPORT: '{node.Package.HierarchyString}' imported.");
+                if(symbol.IsLibrary)
+                {
+                    CurrentScope.Define((LibrarySymbol)symbol);
                     return null;
                 }
-                else
+                else if(symbol.IsPackage)
                 {
-                    // Do library import
+                    CurrentScope.Define((PackageSymbol)symbol);
+                    return null;
                 }
             }
 
             // Return if there is a standard library as the requested library name.
+            // Support for standard libraries later...
             // if (LibraryManager.StandardLibraries.Contains(node.Package))
             //     return null;
             

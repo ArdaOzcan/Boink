@@ -6,6 +6,7 @@ namespace Boink.Text
     public static class TextOperations
     {
         public const string BoinkNewLine = "\n";
+
         public static string ReadFileNormalized(string filePath)
         {
             string result = File.ReadAllText(filePath);
@@ -13,7 +14,7 @@ namespace Boink.Text
             result += BoinkNewLine;
             return result;
         }
-
+        
         public static string GetWithoutWhitespace(this string str)
         {
             str = str.Replace("\n", "");

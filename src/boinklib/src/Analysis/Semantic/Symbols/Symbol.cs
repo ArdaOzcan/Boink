@@ -2,7 +2,6 @@ using System;
 
 namespace Boink.Analysis.Semantic.Symbols
 {
-
     /// <summary>
     /// Base class for symbols.
     /// </summary>

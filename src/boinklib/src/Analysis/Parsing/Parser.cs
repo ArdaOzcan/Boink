@@ -224,12 +224,6 @@ namespace Boink.Analysis.Parsing
                 // Get the type of the child reference syntax.
                 var varType = variable.ChildReference.GetType();
 
-                // Check the type of the child reference and assign to ParentReference.
-                if (varType == typeof(VariableSyntax))
-                    ((VariableSyntax)variable.ChildReference).ParentReference = variable;
-                else if (varType == typeof(FunctionCallSyntax))
-                    ((FunctionCallSyntax)variable.ChildReference).Var.ParentReference = variable;
-
             }
 
             return variable;
