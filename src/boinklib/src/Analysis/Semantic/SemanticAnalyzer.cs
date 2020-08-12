@@ -183,7 +183,7 @@ namespace Boink.Analysis.Semantic
 
             if(node.Type == null)
             {
-                ErrorHandler.Throw(new UnsupportedOperationError($"Binary operation not supported.",
+                ErrorHandler.Throw(new UnsupportedOperationError($"Binary operation not supported",
                                                                  node.Pos, FilePath));
             }
 
