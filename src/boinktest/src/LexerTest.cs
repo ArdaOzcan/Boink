@@ -31,10 +31,10 @@ namespace Boink.UnitTesting
         public void IntLiteralTokenTest() => TokenTest("123", TokenType.IntLiteral);
 
         [TestMethod]
-        public void FloatLiteralTokenTest() => TokenTest("1.23", TokenType.FloatLiteral);
+        public void DoubleLiteralTokenTest() => TokenTest("1.23", TokenType.DoubleLiteral);
 
         [TestMethod]
-        public void FloatLiteralTokenTest2() => TokenTest("1.21134233", TokenType.FloatLiteral);
+        public void DoubleLiteralTokenTest2() => TokenTest("1.21134233", TokenType.DoubleLiteral);
 
         [TestMethod]
         public void PlusTokenTest() => TokenTest("+", TokenType.Plus);

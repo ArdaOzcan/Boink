@@ -10,7 +10,7 @@ namespace Boink.Analysis.Tokenization
         /// <summary> 0, 1, 2, 123, 314 ... </summary>
         IntLiteral,
         /// <summary> 0.123123, 3.1415, 2.72 ... </summary>
-        FloatLiteral,
+        DoubleLiteral,
         /// <summary> + </summary>
         Plus,
         /// <summary> - </summary>
@@ -70,7 +70,9 @@ namespace Boink.Analysis.Tokenization
         /// <summary> import </summary>
         Import,
         /// <summary> . </summary>
-        Dot
+        Dot,
+        /// <summary> double </summary>
+        DoubleType
     }
 
 }

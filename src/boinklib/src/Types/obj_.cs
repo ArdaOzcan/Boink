@@ -15,7 +15,8 @@ namespace Boink.Types
             { TokenType.IntType, typeof(int_) },
             { TokenType.BoolType, typeof(bool_) },
             { TokenType.FloatType, typeof(float_) },
-            { TokenType.StringType, typeof(string_) }
+            { TokenType.StringType, typeof(string_) },
+            { TokenType.DoubleType, typeof(double_) }
         };
 
         public string Name { get; private set; }

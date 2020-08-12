@@ -294,7 +294,7 @@ namespace Boink.Interpretation
         /// </summary>
         /// <param name="node">Float literal syntax node.</param>
         /// <returns>Boink float_ object.</returns>
-        public override object Visit(FloatLiteralSyntax node) => new float_(null, (float)node.Val);
+        public override object Visit(DoubleLiteralSyntax node) => new double_(null, (double)node.Val);
 
         /// <summary>
         /// Return the Boink bool_ object.

@@ -43,7 +43,7 @@ namespace Boink.AST
 
         public abstract object Visit(IntLiteralSyntax node);
 
-        public abstract object Visit(FloatLiteralSyntax node);
+        public abstract object Visit(DoubleLiteralSyntax node);
 
         public abstract object Visit(FunctionCallSyntax node);
 
