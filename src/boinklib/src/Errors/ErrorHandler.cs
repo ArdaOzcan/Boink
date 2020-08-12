@@ -32,7 +32,7 @@ namespace Boink.Errors
         /// <param name="error">Error to be added.</param>
         public static void Throw(Error error)
         {
-            instance.AddLog($"{error.GetType().Name}: {error.Msg}. Error Position: {instance.ProgramLexer.ConvertPosToLine(error.Pos)}");
+            instance.AddLog($"{error.GetType().Name}: {error.Msg}. Error Position: {instance.ProgramLexer.ConvertPosToLine(error.Pos)}. File: '{error.FilePath}'");
             /// Console.WriteLine($"{error.GetType().Name}: {error.Msg}. Error Position: {ProgramLexer.ConvertPosToLine(error.Pos)}");
             /// throw new Exception();
         }

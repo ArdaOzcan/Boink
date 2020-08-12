@@ -196,8 +196,7 @@ namespace Boink.Interpretation.Library
         /// <returns>A package_ object.</returns>
         package_ ConvertToPackageObject(PackageInfo packageInfo)
         {
-            string text = TextOperations.ReadFileNormalized(packageInfo.Path);
-            var lexer = new Lexer(text);
+            var lexer = new Lexer(packageInfo.Path);
             var parser = new Parser(lexer);
 
             string fileName = Path.GetFileName(packageInfo.Path);

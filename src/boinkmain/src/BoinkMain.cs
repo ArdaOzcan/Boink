@@ -34,10 +34,8 @@ namespace Boink
                 return;
             }
 
-            string text = TextOperations.ReadFileNormalized(filePath);
-
             // ErrorHandler Handler for exceptions during lexing, parsing and semantic analysis.
-            var lexer = new Lexer(text);
+            var lexer = new Lexer(filePath);
             var errorHandler = new ErrorHandler(lexer);
 
             var parser = new Parser(lexer);
@@ -73,10 +71,9 @@ namespace Boink
             }
 
             var dirCache = new DirectoryCache(Path.GetDirectoryName(filePath));
-            string text = TextOperations.ReadFileNormalized(filePath);
 
             // ErrorHandler Handler for exceptions during lexing, parsing and semantic analysis.
-            var lexer = new Lexer(text);
+            var lexer = new Lexer(filePath);
             var errorHandler = new ErrorHandler(lexer);
 
             // ErrorHandler Assign lexer to convert positions to line and offset.
@@ -86,8 +83,7 @@ namespace Boink
             // Argument is the program name which is equivalent to file's name.
             var root = parser.Parse(Path.GetFileName(filePath));
 
-            string pathDirectory = Path.GetDirectoryName(filePath);
-            var symbolTreeBuilder = new SemanticAnalyzer(pathDirectory, dirCache);
+            var symbolTreeBuilder = new SemanticAnalyzer(filePath, dirCache);
             symbolTreeBuilder.Visit(root);
 
             symbolTreeBuilder.WriteAll();
@@ -96,6 +92,7 @@ namespace Boink
                 errorHandler.WriteAll();
             else
             {
+                string pathDirectory = Path.GetDirectoryName(filePath);
                 var interpreter = new Interpreter(pathDirectory, dirCache);
                 interpreter.Interpret(root, true);
             }

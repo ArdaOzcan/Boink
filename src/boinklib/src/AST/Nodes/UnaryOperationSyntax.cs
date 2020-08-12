@@ -29,7 +29,6 @@ namespace Boink.AST.Nodes
                 if(OperationTypes.TypeSupportsUnaryOperation(Expr.Type, Operator.Type, Pos))
                     return Expr.Type;
                 
-                ErrorHandler.Throw(new UnsupportedOperationError($"Type {Expr.Type.Name} doesn't support {OperationTypes.GetUnaryOperationByTokenType(Operator.Type)}", Pos));
                 return null;
             }
         }

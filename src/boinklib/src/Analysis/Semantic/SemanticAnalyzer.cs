@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 using Boink.Analysis.Semantic.Symbols;
 using Boink.AST;
@@ -42,6 +43,8 @@ namespace Boink.Analysis.Semantic
         /// </summary>
         public string ProgramDirectory { get; }
 
+        public string FilePath { get; }
+
         /// <summary>
         /// Log all information stored in the list of logs with header and footer.
         /// </summary>
@@ -58,10 +61,11 @@ namespace Boink.Analysis.Semantic
         /// <summary>
         /// Construct a SemanticAnalyzer object.
         /// </summary>
-        public SemanticAnalyzer(string programDirectory, DirectoryCache dirCache)
+        public SemanticAnalyzer(string filePath, DirectoryCache dirCache)
         {
             Logs = new List<string>();
-            ProgramDirectory = programDirectory;
+            ProgramDirectory = Path.GetDirectoryName(filePath);
+            FilePath = filePath;
             DirCache = dirCache;
         }
 
@@ -104,7 +108,7 @@ namespace Boink.Analysis.Semantic
                 // If the function already exists, throw a Boink error.
                 // TODO: Check for argument type too for function overloading.
                 ErrorHandler.Throw(new MultipleDefinitionError($"Function {node.Name.Val} is already defined",
-                                                               node.Pos));
+                                                               node.Pos, FilePath));
                 return null;
             }
 
@@ -161,7 +165,7 @@ namespace Boink.Analysis.Semantic
 
             // If the function has a give type but it doesn't give, throw a Boink error.
             ErrorHandler.Throw(new NoGiveError($"Function {node.Name.Val} doesn't give any value even though it has a give type of {giveType}",
-                                               node.Pos));
+                                               node.Pos, FilePath));
 
             return null;
         }
@@ -176,6 +180,12 @@ namespace Boink.Analysis.Semantic
             // Visit both sides.
             Visit(node.Left);
             Visit(node.Right);
+
+            if(node.Type == null)
+            {
+                ErrorHandler.Throw(new UnsupportedOperationError($"Binary operation not supported.",
+                                                                 node.Pos, FilePath));
+            }
 
             return null;
         }
@@ -230,7 +240,7 @@ namespace Boink.Analysis.Semantic
 
             // If a variable was not found, throw a Boink error.
             ErrorHandler.Throw(new UndefinedSymbolError($"Variable '{node.Name}' is not defined",
-                                                        node.Pos));
+                                                        node.Pos, FilePath));
             return null;
         }
 
@@ -287,7 +297,7 @@ namespace Boink.Analysis.Semantic
                     {
                         // There is a type mismatch, throw a Boink error.
                         ErrorHandler.Throw(new IncompatibleTypesError($"Type {node.Expr.Type} and {varType} are not compatible for assignment",
-                                                                      node.Pos));
+                                                                      node.Pos, FilePath));
                         return null;
                     }
 
@@ -300,7 +310,7 @@ namespace Boink.Analysis.Semantic
 
             // Throw a Boink error if it is already defined.
             ErrorHandler.Throw(new MultipleDefinitionError($"Variable {node.Name} is already defined",
-                                                           node.Pos));
+                                                           node.Pos, FilePath));
             return null;
         }
 
@@ -336,13 +346,13 @@ namespace Boink.Analysis.Semantic
 
                 // Throw a Boink error if types don't match.
                 ErrorHandler.Throw(new IncompatibleTypesError($"Type {node.Expr.Type} and {symbol.VarType} are not compatible for assignment",
-                                                              node.Pos));
+                                                              node.Pos, FilePath));
                 return null;
             }
 
             // Throw a Boink error if the variable is not defined.
             ErrorHandler.Throw(new UndefinedSymbolError($"Variable '{node.Var.Name}' is not defined",
-                                                        node.Var.Pos));
+                                                        node.Var.Pos, FilePath));
             return null;
         }
 
@@ -389,14 +399,14 @@ namespace Boink.Analysis.Semantic
                 {
                     // Throw a Boink error if there are too many arguments passed in.
                     ErrorHandler.Throw(new ArgumentMismatchError($"Too many arguments for function call",
-                                                                 node.Pos));
+                                                                 node.Pos, FilePath));
                     return null;
                 }
                 else if (argTypes.Count < functionSymbol.ArgTypes.Count)
                 {
                     // Throw a Boink error if there are too few arguments passed in.
                     ErrorHandler.Throw(new ArgumentMismatchError($"Too few arguments for function call",
-                                                                 node.Pos));
+                                                                 node.Pos, FilePath));
                     return null;
                 }
                 else
@@ -411,7 +421,7 @@ namespace Boink.Analysis.Semantic
                         {
                             // Throw a Boink error if types don't match.
                             ErrorHandler.Throw(new IncompatibleTypesError($"Type {callArgType} and {actualArgType} are not compatible for assignment",
-                                                                          node.Pos));
+                                                                          node.Pos, FilePath));
                             return null;
                         }
 
@@ -424,7 +434,7 @@ namespace Boink.Analysis.Semantic
             
             // Throw a Boink error if the function has not been defined before.
             ErrorHandler.Throw(new UndefinedSymbolError($"Function '{node.Var.Name}' is not defined",
-                                                        node.Pos));
+                                                        node.Pos, FilePath));
             return null;
         }
 
@@ -463,20 +473,20 @@ namespace Boink.Analysis.Semantic
                     
                     // Throw a Boink error if the types don't match.
                     ErrorHandler.Throw(new IncompatibleTypesError($"Type {exprType} and {giveType} are not compatible for giving",
-                                                                  node.Pos));
+                                                                  node.Pos, FilePath));
                     return null;
                 }
 
                 // Throw a Boink error if there is no give type.
                 ErrorHandler.Throw(new IncompatibleTypesError($"'give' is not allowed because function '{currentFunctionSymbol.Name}' has no return type",
-                                                              node.Pos));
+                                                              node.Pos, FilePath));
                 return null;
             }
 
             // Throw a Boink error if the give is not inside of a function
             // meaning the function is not defined.
             ErrorHandler.Throw(new GiveNotAllowedError($"'give' is not allowed here because it is not inside of a function",
-                                                       node.Pos));
+                                                       node.Pos, FilePath));
             return null;
         }
 
@@ -495,7 +505,7 @@ namespace Boink.Analysis.Semantic
             {
                 // Throw a Boink error if the type is not a bool_.
                 ErrorHandler.Throw(new IncompatibleTypesError($"Type {node.Expr.Type} is not compatible for if preposition",
-                                                              node.Expr.Pos));
+                                                              node.Expr.Pos, FilePath));
             }
 
             // Visit each statement of the if syntax.
@@ -535,7 +545,7 @@ namespace Boink.Analysis.Semantic
             
             // Throw a Boink error if no library could be found.
             ErrorHandler.Throw(new UnknownLibraryError($"Library '{node.Package.HierarchyString}' not found",
-                                                       node.ImportToken.Pos));
+                                                       node.ImportToken.Pos, FilePath));
 
             return null;
         }
@@ -549,6 +559,12 @@ namespace Boink.Analysis.Semantic
         {
             // Visit the expression.
             Visit(node.Expr);
+
+            if(node.Type == null)
+            {
+                ErrorHandler.Throw(new UnsupportedOperationError($"Type {node.Expr.Type.Name} doesn't support {OperationTypes.GetUnaryOperationByTokenType(node.Operator.Type)}",
+                                                                 node.Pos, FilePath));
+            }
             return null;
         }
 

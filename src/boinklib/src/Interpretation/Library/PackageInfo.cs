@@ -33,11 +33,8 @@ namespace Boink.Interpretation.Library
 
         public IImportableSymbol ToSymbol(DirectoryCache dirCache)
         {
-            // Read the package.
-            string text = TextOperations.ReadFileNormalized(this.Path);
-
             // Lex the package.
-            var lexer = new Lexer(text);
+            var lexer = new Lexer(Path);
 
             var parser = new Parser(lexer);
 
@@ -45,7 +42,7 @@ namespace Boink.Interpretation.Library
             // Parse the package.
             var root = parser.Parse(this.Name);
 
-            var symbolTreeBuilder = new SemanticAnalyzer(System.IO.Path.GetDirectoryName(this.Path), dirCache);
+            var symbolTreeBuilder = new SemanticAnalyzer(Path, dirCache);
 
             // Semantically analyze the package.
             symbolTreeBuilder.Visit(root);

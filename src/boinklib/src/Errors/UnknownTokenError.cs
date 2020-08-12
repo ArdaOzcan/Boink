@@ -2,6 +2,6 @@ namespace Boink.Errors
 {
     public class UnknownTokenError : Error
     {
-        public UnknownTokenError(string msg, int pos) : base(msg, pos) { }
+        public UnknownTokenError(string msg, int pos, string filePath) : base(msg, pos, filePath) { }
     }
 }

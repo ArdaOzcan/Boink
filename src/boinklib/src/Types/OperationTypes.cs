@@ -239,21 +239,21 @@ namespace Boink.Types
             Dictionary<Operation, Dictionary<Type, Type>> opDict;
             if (!BinaryOperationResultTypes.TryGetValue(thisType, out opDict))
             {
-                ErrorHandler.Throw(new UnsupportedOperationError($"Type {thisType.Name} doesn't support binary operations", pos));
+                // ErrorHandler.Throw(new UnsupportedOperationError($"Type {thisType.Name} doesn't support binary operations", pos));
                 return null;
             }
 
             Dictionary<Type, Type> typeDict;
             if (!opDict.TryGetValue(operation, out typeDict))
             {
-                ErrorHandler.Throw(new UnsupportedOperationError($"Type {thisType.Name} doesn't support {operation.ToString()}", pos));
+                // ErrorHandler.Throw(new UnsupportedOperationError($"Type {thisType.Name} doesn't support {operation.ToString()}", pos));
                 return null;
             }
 
             Type resultType;
             if (!typeDict.TryGetValue(otherType, out resultType))
             {
-                ErrorHandler.Throw(new UnsupportedOperationError($"Type {thisType.Name} doesn't support {operation.ToString()} with type {otherType.Name}", pos));
+                // ErrorHandler.Throw(new UnsupportedOperationError($"Type {thisType.Name} doesn't support {operation.ToString()} with type {otherType.Name}", pos));
                 return null;
             }
 

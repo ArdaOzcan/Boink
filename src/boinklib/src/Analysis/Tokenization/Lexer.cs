@@ -43,6 +43,8 @@ namespace Boink.Analysis.Tokenization
         /// Current position of the lexer.
         /// </summary>
         public int Pos { get; set; }
+        
+        public string FilePath { get; private set; }
 
         /// <summary>
         /// Dict to hold information about existing keywords and
@@ -66,10 +68,11 @@ namespace Boink.Analysis.Tokenization
 
         /// <summary>Construct a Lexer object.</summary>
         /// <param name="text">Text of the program.</param>
-        public Lexer(string text)
+        public Lexer(string filePath)
         {
             Pos = 0;
-            Text = text;
+            FilePath = filePath;
+            Text = TextOperations.ReadFileNormalized(filePath);
         }
 
         /// <summary>
@@ -285,7 +288,7 @@ namespace Boink.Analysis.Tokenization
                 if(CurrentChar == ' ')
                 {
                     ErrorHandler.Throw(
-                        new UnexpectedTokenError("Whitespace not expected", Pos)
+                        new UnexpectedTokenError("Whitespace not expected", Pos, FilePath)
                     );
 
                     IgnoreWhitespace();
@@ -422,7 +425,7 @@ namespace Boink.Analysis.Tokenization
 
             ErrorHandler.Throw(
                 new UnknownTokenError($"Character '{CurrentChar}' is not known",
-                                      Pos)
+                                      Pos, FilePath)
             );
 
             // Skip to next token if an error is thrown.

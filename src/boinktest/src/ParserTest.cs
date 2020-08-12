@@ -38,9 +38,8 @@ namespace Boink.UnitTesting
         public void ParseTreeTest(string filePath)
         {
             Assert.AreEqual(Path.GetExtension(filePath), ".boink");
-            string text = TextOperations.ReadFileNormalized(filePath);
 
-            var lexer = new Lexer(text);
+            var lexer = new Lexer(filePath);
             var errHandler = new ErrorHandler(lexer);
             var parser = new Parser(lexer);
 

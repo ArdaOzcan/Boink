@@ -78,6 +78,8 @@ namespace Boink.Analysis.Parsing
         /// </summary>
         public Lexer ProgramLexer { get; private set; }
 
+        public string FilePath { get; private set; }
+
         /// <summary>
         /// Current token the parser will read.
         /// </summary>
@@ -90,6 +92,7 @@ namespace Boink.Analysis.Parsing
         public Parser(Lexer lexer)
         {
             ProgramLexer = lexer;
+            FilePath = lexer.FilePath;
             CurrentToken = ProgramLexer.GetNextToken();
         }
 
@@ -135,7 +138,7 @@ namespace Boink.Analysis.Parsing
             {
                 // Throw a Boink error if the current token is not inside the set.
                 ErrorHandler.Throw(new UnexpectedTokenError($"Expected one of {{ {string.Join(", ", tokenTypes)} }} instead of {CurrentToken.Type} {CurrentToken.Val}",
-                                                            CurrentToken.Pos));
+                                                            CurrentToken.Pos, FilePath));
             }
 
             // Continue to get the next token.
@@ -175,7 +178,7 @@ namespace Boink.Analysis.Parsing
             {
                 // Throw a Boink error if token types don't match.
                 ErrorHandler.Throw(new UnexpectedTokenError($"Expected a {tokenType} instead of <{CurrentToken.Type}: {CurrentToken.Val}>",
-                                                            CurrentToken.Pos));
+                                                            CurrentToken.Pos, FilePath));
             }
 
             // Continue to get the next token.
@@ -564,7 +567,7 @@ namespace Boink.Analysis.Parsing
 
             // Throw a Boink error if the token is not a type name.
             ErrorHandler.Throw(new UnexpectedTokenError($"Expected a type token instead of {CurrentToken.Type}: {CurrentToken.Val}",
-                                                        CurrentToken.Pos));
+                                                        CurrentToken.Pos, FilePath));
             return null;
         }
 
