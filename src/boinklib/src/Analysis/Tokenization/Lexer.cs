@@ -76,36 +76,6 @@ namespace Boink.Analysis.Tokenization
         }
 
         /// <summary>
-        /// Convert a 1D position to a 2D position that is
-        /// the line number and the offset from the previous newline.
-        /// </summary>
-        /// <param name="pos">1D position of a character.</param>
-        /// <returns>New 2D position with the line number and offset.</returns>
-        public Tuple<int, int> ConvertPosToLine(int pos)
-        {
-            if (pos >= Text.Length)
-                return null;
-
-            int i = 0, lineCount = 0, offsetToNewLine = 0;
-            char chr = Text[i];
-            while (i < pos)
-            {
-                offsetToNewLine += 1;
-                if (IsAhead(TextOperations.BoinkNewLine))
-                {
-                    lineCount += 1;
-                    offsetToNewLine = 0;
-                    i += TextOperations.BoinkNewLine.Length - 1; // If longer than 1, increase i.
-                }
-
-                i += 1;
-                chr = Text[i];
-            }
-
-            return new Tuple<int, int>(lineCount + 1, offsetToNewLine + 1);
-        }
-
-        /// <summary>
         /// Return the next number (whole or floating) as a token.
         /// </summary>
         /// <returns>Token of the next number.</returns>

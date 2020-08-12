@@ -36,7 +36,7 @@ namespace Boink
 
             // ErrorHandler Handler for exceptions during lexing, parsing and semantic analysis.
             var lexer = new Lexer(filePath);
-            var errorHandler = new ErrorHandler(lexer);
+            var errorHandler = new ErrorHandler();
 
             var parser = new Parser(lexer);
 
@@ -74,7 +74,7 @@ namespace Boink
 
             // ErrorHandler Handler for exceptions during lexing, parsing and semantic analysis.
             var lexer = new Lexer(filePath);
-            var errorHandler = new ErrorHandler(lexer);
+            var errorHandler = new ErrorHandler();
 
             // ErrorHandler Assign lexer to convert positions to line and offset.
             var parser = new Parser(lexer);

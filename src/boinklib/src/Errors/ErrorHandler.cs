@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Boink.Analysis.Tokenization;
 using Boink.Logging;
 
+using Boink.Text;
+
 namespace Boink.Errors
 {
     /// <summary>Data structure to hold a list of errors.</summary>
@@ -26,21 +28,19 @@ namespace Boink.Errors
 
         public bool HasLogs => Logs.Count != 0;
 
-        public Lexer ProgramLexer { get; set; }
 
         /// <summary>Add an error to the list.</summary>
         /// <param name="error">Error to be added.</param>
         public static void Throw(Error error)
         {
-            instance.AddLog($"{error.GetType().Name}: {error.Msg}. Error Position: {instance.ProgramLexer.ConvertPosToLine(error.Pos)}. File: '{error.FilePath}'");
+            instance.AddLog($"{error.GetType().Name}: {error.Msg}. Error Position: {TextOperations.ConvertPosToLine(error.FilePath, error.Pos)}. File: '{error.FilePath}'");
             /// Console.WriteLine($"{error.GetType().Name}: {error.Msg}. Error Position: {ProgramLexer.ConvertPosToLine(error.Pos)}");
             /// throw new Exception();
         }
         
-        public ErrorHandler(Lexer programLexer)
+        public ErrorHandler()
         {
             instance = this;
-            ProgramLexer = programLexer;
             Logs = new List<string>();
         }
     }

@@ -40,7 +40,7 @@ namespace Boink.UnitTesting
             Assert.AreEqual(Path.GetExtension(filePath), ".boink");
 
             var lexer = new Lexer(filePath);
-            var errHandler = new ErrorHandler(lexer);
+            var errHandler = new ErrorHandler();
             var parser = new Parser(lexer);
 
             string fileName = Path.GetFileName(filePath);
