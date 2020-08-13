@@ -11,6 +11,8 @@ namespace Boink.Analysis.Tokenization
         IntLiteral,
         /// <summary> 0.123123, 3.1415, 2.72 ... </summary>
         DoubleLiteral,
+        /// <summary> 0.123123f, 3.1415f, 2.72f ... </summary>
+        FloatLiteral,
         /// <summary> + </summary>
         Plus,
         /// <summary> - </summary>

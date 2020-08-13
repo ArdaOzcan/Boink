@@ -308,7 +308,7 @@ namespace Boink.Analysis.Parsing
         }
 
         /// <summary>
-        /// Parse a FloatLiteralSyntax.
+        /// Parse a DoubleLiteralSyntax.
         /// </summary>
         /// <returns>Parsed SyntaxNode.</returns>
         public DoubleLiteralSyntax ParseDoubleLiteral()
@@ -316,7 +316,26 @@ namespace Boink.Analysis.Parsing
             Token token = CurrentToken;
             Consume(TokenType.DoubleLiteral);
 
-            var floatLiteralSyntax = new DoubleLiteralSyntax(token);
+            var doubleLiteralSyntax = new DoubleLiteralSyntax(token);
+
+            // Check if the next token is a dot.
+            if (CurrentToken.Type == TokenType.Dot)
+                // Set the child reference of the float literal.
+                doubleLiteralSyntax.ChildReference = ParseChildReference();
+
+            return doubleLiteralSyntax;
+        }
+
+        /// <summary>
+        /// Parse a FloatLiteralSyntax.
+        /// </summary>
+        /// <returns>Parsed SyntaxNode.</returns>
+        public FloatLiteralSyntax ParseFloatLiteral()
+        {
+            Token token = CurrentToken;
+            Consume(TokenType.FloatLiteral);
+
+            var floatLiteralSyntax = new FloatLiteralSyntax(token);
 
             // Check if the next token is a dot.
             if (CurrentToken.Type == TokenType.Dot)
@@ -392,6 +411,8 @@ namespace Boink.Analysis.Parsing
                     return ParseIntLiteral();
                 case TokenType.DoubleLiteral:
                     return ParseDoubleLiteral();
+                case TokenType.FloatLiteral:
+                    return ParseFloatLiteral();
                 case TokenType.BoolLiteral:
                     return ParseBoolLiteral();
                 case TokenType.StringLiteral:

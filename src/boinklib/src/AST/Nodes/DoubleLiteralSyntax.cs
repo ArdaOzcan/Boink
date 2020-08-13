@@ -7,9 +7,9 @@ using Boink.Types;
 namespace Boink.AST.Nodes
 {
     /// <summary>
-    /// SyntaxNode that represents a float literal.
+    /// SyntaxNode that represents a double literal.
     /// </summary>
-    public class FloatLiteralSyntax : SyntaxNode, IParentSyntax
+    public class DoubleLiteralSyntax : SyntaxNode, IParentSyntax
     {
         public SyntaxNode ChildReference { get; set; }
         
@@ -19,7 +19,7 @@ namespace Boink.AST.Nodes
 
         public override int Pos => LiteralToken.Pos;
 
-        public override Type Type => typeof(float_);
+        public override Type Type => typeof(double_);
 
         public override Dictionary<string, object> JsonDict
         {
@@ -35,7 +35,7 @@ namespace Boink.AST.Nodes
         /// Construct an FloatLiteralSyntax object.
         /// </summary>
         /// <param name="token">Token of the float literal.</param>
-        public FloatLiteralSyntax(Token token)
+        public DoubleLiteralSyntax(Token token)
         {
             LiteralToken = token;
             Val = token.Val;

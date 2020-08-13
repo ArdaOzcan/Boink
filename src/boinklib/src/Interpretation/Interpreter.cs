@@ -378,6 +378,8 @@ namespace Boink.Interpretation
                     return null;
             }
         }
+
+        public override object Visit(FloatLiteralSyntax node) => new float_(null, (float)node.Val);
     }
 
 }

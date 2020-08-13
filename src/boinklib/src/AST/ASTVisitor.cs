@@ -20,6 +20,8 @@ namespace Boink.AST
         {
             Type nodeType = node.GetType();
             MethodInfo overloadedMethod = GetType().GetMethod("Visit", new Type[] { nodeType });
+            if(overloadedMethod == GetType().GetMethod("Visit", new Type[] { typeof(SyntaxNode) }))
+                throw new Exception($"{nodeType.ToString()} Type not supported.");
             return overloadedMethod.Invoke(this, new object[] { node });
         }
 
@@ -44,6 +46,8 @@ namespace Boink.AST
         public abstract object Visit(IntLiteralSyntax node);
 
         public abstract object Visit(DoubleLiteralSyntax node);
+
+        public abstract object Visit(FloatLiteralSyntax node);
 
         public abstract object Visit(FunctionCallSyntax node);
 
