@@ -68,11 +68,14 @@ namespace Boink.Analysis.Tokenization
 
         /// <summary>Construct a Lexer object.</summary>
         /// <param name="text">Text of the program.</param>
-        public Lexer(string filePath)
+        public Lexer(string filePath, string text = null)
         {
             Pos = 0;
             FilePath = filePath;
-            Text = TextOperations.ReadFileNormalized(filePath);
+            if(text == null)
+                Text = TextOperations.ReadFileNormalized(filePath);
+            else
+                Text = text;
         }
 
         /// <summary>

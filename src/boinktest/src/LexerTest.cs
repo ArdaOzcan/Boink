@@ -19,9 +19,9 @@ namespace Boink.UnitTesting
         /// <param name="tokenType"></param>
         public void TokenTest(string text, TokenType tokenType)
         {
-            var lexer = new Lexer(text);
+            var lexer = new Lexer(null, text);
             var token = lexer.GetNextToken();
-            Assert.IsTrue(token.Type == tokenType);
+            Assert.AreEqual(token.Type, tokenType);
         }
 
         [TestMethod]
