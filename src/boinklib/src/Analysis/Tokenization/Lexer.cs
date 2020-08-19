@@ -63,7 +63,8 @@ namespace Boink.Analysis.Tokenization
             { "give", TokenType.Give },
             { "if", TokenType.If },
             { "string", TokenType.StringType },
-            { "import", TokenType.Import }
+            { "import", TokenType.Import },
+            { "double", TokenType.DoubleType }
         };
 
         /// <summary>Construct a Lexer object.</summary>
@@ -108,9 +109,24 @@ namespace Boink.Analysis.Tokenization
                     Pos += 1;
                 }
 
+                if(CurrentChar == 'f')
+                {
+                    Pos += 1;
+                    float floatVal = float.Parse(result, CultureInfo.InvariantCulture.NumberFormat);
+                    return new Token(TokenType.FloatLiteral, floatVal, startPos);
+                }
+
                 // Parse string to float.
-                float val = float.Parse(result, CultureInfo.InvariantCulture.NumberFormat);
-                return new Token(TokenType.FloatLiteral, val, startPos);
+                // float val = float.Parse(result, CultureInfo.InvariantCulture.NumberFormat);
+                double val = double.Parse(result, CultureInfo.InvariantCulture.NumberFormat);
+                return new Token(TokenType.DoubleLiteral, val, startPos);
+            }
+
+            if(CurrentChar == 'f')
+            {
+                Pos += 1;
+                float floatVal = float.Parse(result, CultureInfo.InvariantCulture.NumberFormat);
+                return new Token(TokenType.FloatLiteral, floatVal, startPos);
             }
 
             return new Token(TokenType.IntLiteral, int.Parse(result), startPos);

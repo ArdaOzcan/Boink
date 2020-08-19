@@ -572,8 +572,10 @@ namespace Boink.Analysis.Semantic
 
         public override object Visit(IntLiteralSyntax node) => null;
 
-        public override object Visit(FloatLiteralSyntax node) => null;
+        public override object Visit(DoubleLiteralSyntax node) => null;
 
         public override object Visit(StringLiteralSyntax node) => null;
+
+        public override object Visit(FloatLiteralSyntax node) => null;
     }
 }
