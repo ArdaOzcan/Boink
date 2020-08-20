@@ -86,7 +86,7 @@ namespace Boink
             var symbolTreeBuilder = new SemanticAnalyzer(filePath, dirCache);
             symbolTreeBuilder.Visit(root);
 
-            symbolTreeBuilder.WriteAll();
+            // symbolTreeBuilder.WriteAll();
 
             if (errorHandler.HasLogs)
                 errorHandler.WriteAll();
@@ -94,7 +94,7 @@ namespace Boink
             {
                 string pathDirectory = Path.GetDirectoryName(filePath);
                 var interpreter = new Interpreter(pathDirectory, dirCache);
-                interpreter.Interpret(root, true);
+                interpreter.Interpret(root, false);
             }
         }
 

@@ -39,13 +39,17 @@ namespace Boink.Interpretation.Library
         /// <returns>The cache as a dictionary.</returns>
         private static Dictionary<string, IImportableInfo> GetLibraryResources(string dirPath)
         {
+            if (dirPath == "") dirPath = ".";
             string[] files = Directory.GetFiles(dirPath);
             var resources = new Dictionary<string, IImportableInfo>();
             foreach (string filePath in files)
             {
-                string packageName = Path.GetFileNameWithoutExtension(filePath);
-                var package = new PackageInfo(packageName, filePath);
-                resources.Add(packageName, package);
+                if(Path.GetExtension(filePath) == ".boink")
+                {
+                    string packageName = Path.GetFileNameWithoutExtension(filePath);
+                    var package = new PackageInfo(packageName, filePath);
+                    resources.Add(packageName, package);
+                }
             }
 
             string[] directories = Directory.GetDirectories(dirPath);
