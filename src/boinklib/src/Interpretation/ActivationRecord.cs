@@ -93,7 +93,7 @@ namespace Boink.Interpretation
                         Members[key] = objInParentScope.DeepCopy();
                         return Members[key];
                     }
-                    throw new Exception("Should not have come here.");
+                    throw new Exception("There is either an error in the semantic analyzer or the definition of variables.");
                 }
                 else
                     return objInCurrentScope;

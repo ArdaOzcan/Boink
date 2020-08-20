@@ -208,9 +208,9 @@ namespace Boink.Interpretation.Library
             DirectoryCache dirCache = new DirectoryCache(rootDirPath);
             var interpreter = new Interpreter(programDirectory, dirCache);
 
-            var libRecord = interpreter.Interpret(root);
+            var packageRecord = interpreter.Interpret(root);
 
-            return new package_(packageInfo.Name, libRecord);
+            return new package_(packageInfo.Name, packageRecord);
         }
 
         /// <summary>
