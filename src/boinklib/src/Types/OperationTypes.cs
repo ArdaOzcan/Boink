@@ -30,6 +30,13 @@ namespace Boink.Types
                     { Operation.Negative }
                 }
             },
+            {
+                typeof(double_), new HashSet<Operation>
+                {
+                    { Operation.Positive },
+                    { Operation.Negative }
+                }
+            },
         };
 
         public static readonly Dictionary<TokenType, Operation> BinaryOperationTokens = new Dictionary<TokenType, Operation>

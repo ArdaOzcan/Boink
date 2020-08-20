@@ -103,10 +103,11 @@ namespace Boink.Interpretation
         public override string ToString()
         {
             List<string> lines = new List<string> { $"{NestingLevel} {Name}" };
-
+            lines.Add("{");
             foreach (KeyValuePair<string, obj_> kv in Members)
                 lines.Add($"   {kv.Key}: {kv.Value.ToString()}");
 
+            lines.Add("}");
             string s = "";
             foreach (string l in lines)
                 s += l + "\n";

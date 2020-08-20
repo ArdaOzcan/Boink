@@ -26,6 +26,8 @@ namespace Boink.Analysis.Semantic
 
         public DirectoryCache DirCache { get; }
 
+        public LibraryManager ProgramLibraryManager { get; }
+
         public void AddLog(string log) => Logs.Add(log);
 
         /// <summary>
@@ -67,6 +69,7 @@ namespace Boink.Analysis.Semantic
             ProgramDirectory = Path.GetDirectoryName(filePath);
             FilePath = filePath;
             DirCache = dirCache;
+            ProgramLibraryManager = new LibraryManager();
         }
 
         /// <summary>
@@ -218,22 +221,27 @@ namespace Boink.Analysis.Semantic
                 {
                     SymbolTable parentScope = null;
 
-                    if(symbol.GetType() == typeof(PackageSymbol))
+                    Type symbolType = symbol.GetType();
+                    if (symbolType == typeof(PackageSymbol))
                         parentScope = ((PackageSymbol)symbol).GlobalScope;
 
-                    else if(symbol.GetType() == typeof(LibrarySymbol))
+                    else if (symbolType == typeof(LibrarySymbol))
                         parentScope = ((LibrarySymbol)symbol).Importables;
 
-
-                    if(node.ChildReference.GetType() == typeof(VariableSyntax))
-                        ((VariableSyntax)node.ChildReference).ParentScope = parentScope;
-                    
-                    else if(node.ChildReference.GetType() == typeof(FunctionCallSyntax))
-                        ((FunctionCallSyntax)node.ChildReference).Var.ParentScope = parentScope;
-
+                    SetChildsParentScope(node, parentScope);
 
                     Visit(node.ChildReference);
                 }
+
+                return null;
+            }
+
+            if(ProgramLibraryManager.HasStandardLibrary(node.Name))
+            {
+                var parentScope = ProgramLibraryManager.GetLibrarySymbolTable(node.Name);
+                SetChildsParentScope(node, parentScope);
+
+                Visit(node.ChildReference);
 
                 return null;
             }
@@ -242,6 +250,16 @@ namespace Boink.Analysis.Semantic
             ErrorHandler.Throw(new UndefinedSymbolError($"Variable '{node.Name}' is not defined",
                                                         node.Pos, FilePath));
             return null;
+
+            void SetChildsParentScope(VariableSyntax thisNode, SymbolTable parentScope)
+            {
+                Type childType = thisNode.ChildReference.GetType();
+                if (childType == typeof(VariableSyntax))
+                    ((VariableSyntax)thisNode.ChildReference).ParentScope = parentScope;
+
+                else if (childType == typeof(FunctionCallSyntax))
+                    ((FunctionCallSyntax)thisNode.ChildReference).Var.ParentScope = parentScope;
+            }
         }
 
         /// <summary>
@@ -425,7 +443,7 @@ namespace Boink.Analysis.Semantic
                             return null;
                         }
 
-                        AddLog($"CALL: Function {functionSymbol.Name} called with arguments {functionSymbol.ArgTypes}");
+                        AddLog($"CALL: Function {functionSymbol.Name} called with arguments {{{string.Join(", ", functionSymbol.ArgTypes)}}}");
                     }
                 }
 
@@ -522,6 +540,8 @@ namespace Boink.Analysis.Semantic
         /// <returns>Null.</returns>
         public override object Visit(ImportSyntax node)
         {
+            // Check for the importables in the directory.
+            // (user-created files)
             if(DirCache.HasLibraryOrPackage(node.Package.Hierarchy))
             {
                 var symbol = DirCache.GetLibraryOrPackageSymbol(node.Package.Hierarchy);
@@ -539,9 +559,11 @@ namespace Boink.Analysis.Semantic
             }
 
             // Return if there is a standard library as the requested library name.
-            // Support for standard libraries later...
-            // if (LibraryManager.StandardLibraries.Contains(node.Package))
-            //     return null;
+            if (LibraryManager.StandardLibraries.ContainsKey(node.Package.Root))
+            {
+                ProgramLibraryManager.LoadStandardLibrary(node.Package.Root);
+                return null;
+            }
             
             // Throw a Boink error if no library could be found.
             ErrorHandler.Throw(new UnknownLibraryError($"Library '{node.Package.HierarchyString}' not found",

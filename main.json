@@ -1,0 +1,15 @@
+{
+    "ProgramSyntax": {
+        "Statements": [{
+            "ImportSyntax": {
+                "Package": {
+                    "PackageSyntax": {
+                        "Hierarchy": [
+                            "math"
+                        ]
+                    }
+                }
+            }
+        }]
+    }
+}

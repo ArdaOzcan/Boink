@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 
-using Boink.AST;
 using Boink.AST.Nodes;
 
 namespace Boink.Types

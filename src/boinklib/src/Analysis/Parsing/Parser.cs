@@ -674,7 +674,9 @@ namespace Boink.Analysis.Parsing
                     return new FunctionCallSyntax(var, args);
                 }
 
-                ConsumeMultiple(new HashSet<TokenType> { TokenType.Equals, TokenType.LeftParenthesis, TokenType.Dot });
+                return var;
+
+                // ConsumeMultiple(new HashSet<TokenType> { TokenType.Equals, TokenType.LeftParenthesis, TokenType.Dot });
             }
 
             if (CurrentToken.Type == TokenType.FunctionDefinition)

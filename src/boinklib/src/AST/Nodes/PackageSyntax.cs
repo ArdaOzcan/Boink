@@ -5,6 +5,9 @@ namespace Boink.AST.Nodes
     public class PackageSyntax : SyntaxNode
     {
         public override int Pos { get; }
+        
+        public string Root => Hierarchy[0];
+
         public List<string> Hierarchy { get; }
 
         public override Dictionary<string, object> JsonDict
@@ -15,7 +18,7 @@ namespace Boink.AST.Nodes
                 var dict = new Dictionary<string, object>();
 
                 dict.Add("Hierarchy", Hierarchy);
-                result.Add("ImportSyntax", dict);
+                result.Add("PackageSyntax", dict);
 
                 return result;
             }

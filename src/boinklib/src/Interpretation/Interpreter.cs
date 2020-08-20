@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
-using Boink.Analysis.Parsing;
 using Boink.Analysis.Tokenization;
 using Boink.AST;
 using Boink.AST.Nodes;
 using Boink.Interpretation.Library;
-using Boink.Text;
 using Boink.Types;
 
 namespace Boink.Interpretation
@@ -359,9 +357,9 @@ namespace Boink.Interpretation
                 return null;
             }
             
-            string dllName = node.Package + ".dll";
-            string dllPath = Path.Combine(PathInformation.BoinkExecutableDirectory, dllName);
-            ProgramLibraryManager.LoadLibrary(dllPath);
+            // string dllName = node.Package + ".dll";
+            // string dllPath = Path.Combine(PathInformation.BoinkExecutableDirectory, dllName);
+            // ProgramLibraryManager.LoadLibrary(dllPath);
             return null;
         }
 

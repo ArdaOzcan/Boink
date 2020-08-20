@@ -4,7 +4,7 @@ namespace Boink.Analysis.Semantic.Symbols
     /// An interface for directly importable symbols such as libraries and packages.
     /// <para>
     /// Other (relatively importable) symbols such as functions and variables are
-    /// imported through the 'from' keyword (in futher version).
+    /// imported through the 'from' keyword (in futher versions).
     /// </para>
     /// </summary>
     public interface IImportableSymbol
