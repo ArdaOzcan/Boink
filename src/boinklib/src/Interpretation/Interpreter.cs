@@ -115,60 +115,98 @@ namespace Boink.Interpretation
 
             ActivationRecord parentRecord;
 
-            if(node.Var.ParentRecord == null)
+            if (node.Var.ParentRecord == null)
                 parentRecord = ProgramCallStack.Peek;
             else
                 parentRecord = node.Var.ParentRecord;
 
-            function_ func = (function_)parentRecord[funcName];
+            obj_ function = parentRecord[funcName];
+            if(function.GetType() == typeof(function_))
+                return VisitUserDefinedFunction((function_)function);
+            else
+                return VisitStandardFunction((stdfunc_)function);
 
-            ActivationRecord functionRecord = new ActivationRecord(
-                name: funcName,
-                nestingLevel: parentRecord.NestingLevel + 1,
-                parentRecord: parentRecord,
-                owner: func
-            );
-
-            List<DeclarationSyntax> argDecls = func.Args;
-            List<SyntaxNode> passedArgs = node.Args;
-
-            for (int i = 0; i < argDecls.Count; i++)
+            object VisitStandardFunction(stdfunc_ func)
             {
-                DeclarationSyntax argDecl = argDecls[i];
-                SyntaxNode passedArg = passedArgs[i];
-
-                TokenType token_type = argDecl.VarType.TypeToken.Type;
-                Type varType = obj_.GetTypeByTokenType(token_type);
-
-                ConstructorInfo ctorinfo = varType.GetConstructor(new[] { typeof(string), typeof(object) });
-
-                obj_ var = (obj_)Visit(passedArg);
-
-                object val = null;
-                if (var != null)
-                    val = var.Val;
-
-                functionRecord[argDecl.Name] = (obj_)ctorinfo.Invoke(new object[] { argDecl.Name, val });
-            }
-
-            ProgramCallStack.Push(functionRecord);
-            WriteLineIfVerbose($"------- START OF FUNCTION {funcName} -------");
-
-            foreach (SyntaxNode s in (List<SyntaxNode>)func.Val)
-            {
-                Visit(s);
-                if (func.Gave)
+                ParameterInfo[] parameters = ((MethodInfo)func.Val).GetParameters();
+                List<SyntaxNode> passedArgs = node.Args;
+                object[] arguments = new object[parameters.Length];
+                for (int i = 0; i < parameters.Length; i++)
                 {
-                    func.Gave = false;
-                    break;
+                    SyntaxNode passedArg = passedArgs[i];
+
+                    Type varType = parameters[i].ParameterType;
+
+                    ConstructorInfo ctorinfo = varType.GetConstructor(new[] { typeof(string), typeof(object) });
+
+                    obj_ var = (obj_)Visit(passedArg);
+
+                    object val = null;
+                    if (var != null)
+                        val = var.Val;
+
+                    arguments[i] = (obj_)ctorinfo.Invoke(new object[] { parameters[i].Name, val });
                 }
+
+                WriteLineIfVerbose($"------- START OF FUNCTION {funcName} -------");
+
+                var giveVal = func.InvokeFunction(arguments);
+
+                WriteLineIfVerbose($"-------- END OF FUNCTION {funcName} --------");
+
+                return giveVal;
             }
 
-            WriteLineIfVerbose($"-------- END OF FUNCTION {funcName} --------");
-            WriteLineIfVerbose(ProgramCallStack.ToString());
+            object VisitUserDefinedFunction(function_ func)
+            {
+                ActivationRecord functionRecord = new ActivationRecord(
+                                name: funcName,
+                                nestingLevel: parentRecord.NestingLevel + 1,
+                                parentRecord: parentRecord,
+                                owner: func
+                );
 
-            ProgramCallStack.Pop();
-            return func.GiveVal;
+                List<DeclarationSyntax> argDecls = func.Args;
+                List<SyntaxNode> passedArgs = node.Args;
+
+                for (int i = 0; i < argDecls.Count; i++)
+                {
+                    DeclarationSyntax argDecl = argDecls[i];
+                    SyntaxNode passedArg = passedArgs[i];
+
+                    TokenType tokenType = argDecl.VarType.TypeToken.Type;
+                    Type varType = obj_.GetTypeByTokenType(tokenType);
+
+                    ConstructorInfo ctorinfo = varType.GetConstructor(new[] { typeof(string), typeof(object) });
+
+                    obj_ var = (obj_)Visit(passedArg);
+
+                    object val = null;
+                    if (var != null)
+                        val = var.Val;
+
+                    functionRecord[argDecl.Name] = (obj_)ctorinfo.Invoke(new object[] { argDecl.Name, val });
+                }
+
+                ProgramCallStack.Push(functionRecord);
+                WriteLineIfVerbose($"------- START OF FUNCTION {funcName} -------");
+
+                foreach (SyntaxNode s in (List<SyntaxNode>)func.Val)
+                {
+                    Visit(s);
+                    if (func.Gave)
+                    {
+                        func.Gave = false;
+                        break;
+                    }
+                }
+
+                WriteLineIfVerbose($"-------- END OF FUNCTION {funcName} --------");
+                WriteLineIfVerbose(ProgramCallStack.ToString());
+
+                ProgramCallStack.Pop();
+                return func.GiveVal;
+            }
         }
 
         /// <summary>
@@ -356,10 +394,10 @@ namespace Boink.Interpretation
                 
                 return null;
             }
-            
-            // string dllName = node.Package + ".dll";
-            // string dllPath = Path.Combine(PathInformation.BoinkExecutableDirectory, dllName);
-            // ProgramLibraryManager.LoadLibrary(dllPath);
+
+            var stdlib = LibraryManager.GetStandardLibraryObject(node.Package.Root);
+            ProgramCallStack.Peek[stdlib.Name] = stdlib;
+                        
             return null;
         }
 
