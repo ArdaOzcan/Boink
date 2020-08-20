@@ -15,5 +15,10 @@ namespace StandardLibrary
         {
             Console.WriteLine(text.Val);
         }
+
+        public static string_ readLine()
+        {
+            return new string_(null, Console.ReadLine());
+        }
     }
 }
