@@ -65,7 +65,7 @@ namespace Boink
         /// Handle the Boink command 'run' with the given argument.
         /// </summary>
         /// <param name="filePath">Path of the Boink file.</param>
-        public static void Run(string filePath)
+        public static void Run(string filePath, bool verbose)
         {
             if (!File.Exists(filePath))
             {
@@ -97,7 +97,7 @@ namespace Boink
             {
                 string pathDirectory = Path.GetDirectoryName(filePath);
                 var interpreter = new Interpreter(pathDirectory, dirCache);
-                interpreter.Interpret(root, false);
+                interpreter.Interpret(root, verbose);
             }
         }
 
@@ -110,6 +110,7 @@ namespace Boink
             
             var runParser = subparsers.AddParser("run");
             runParser.AddArgument("filename", help:"Name of the file to be run.");
+            runParser.AddArgument("-v", longName:"--verbose", action: ArgumentAction.StoreTrue);
 
             var parseParser = subparsers.AddParser("parse");
             parseParser.AddArgument("filename", help:"Name of the file to be parsed.");
@@ -120,7 +121,7 @@ namespace Boink
             switch(ns["cmd"])
             {
                 case "run":
-                    Run((string)ns["filename"]);
+                    Run((string)ns["filename"], (bool)ns["verbose"]);
                     break;
                 case "parse":
                     Parse((string)ns["filename"], (string)ns["outdir"]);
