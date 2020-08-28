@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <ItemGroup>
-    <ProjectReference Include="..\boinklib\boinklib.csproj" />
+    <ProjectReference Include="..\boinklib\boinklib.csproj"/>
   </ItemGroup>
-
+  <ItemGroup>
+    <PackageReference Include="ArdaOzcan.SimpleArgParse" Version="1.0.3"/>
+  </ItemGroup>
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
-
 </Project>

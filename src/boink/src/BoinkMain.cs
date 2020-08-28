@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
+using ArdaOzcan.SimpleArgParse;
+
 using Boink.Analysis.Parsing;
 using Boink.Analysis.Semantic;
 using Boink.Analysis.Tokenization;
@@ -9,6 +11,7 @@ using Boink.Errors;
 using Boink.Interpretation;
 using Boink.Interpretation.Library;
 using Boink.Text;
+
 
 namespace Boink
 {
@@ -102,46 +105,26 @@ namespace Boink
         /// <param name="args">Arguments passed in by the user</param>
         public static void Main(string[] args)
         {
-            if (args.Length < 1)
-            {
-                Console.WriteLine("No command was supplied.");
-                return;
-            }
-            if (args.Length == 0)
-            {
-                Console.WriteLine("No arguments were supplied.");
-                return;
-            }
+            var parser = new ArgumentParser();
+            var subparsers = parser.AddSubparsers(title:"commands", help:"Boink command to be run.", dest:"cmd");
+            
+            var runParser = subparsers.AddParser("run");
+            runParser.AddArgument("filename", help:"Name of the file to be run.");
 
-            switch (args[0])
+            var parseParser = subparsers.AddParser("parse");
+            parseParser.AddArgument("filename", help:"Name of the file to be parsed.");
+            parseParser.AddArgument("outdir", help: "Output directory of the parsed JSON.");
+
+            var ns = parser.ParseArgs(args);
+
+            switch(ns["cmd"])
             {
                 case "run":
-                    {
-                        if (args.Length < 2)
-                        {
-                            Console.WriteLine("No filename was supplied.");
-                            break;
-                        }
-                        Run(args[1]);
-                        break;
-                    }
-
-                case "parse":
-                    if (args.Length < 3)
-                    {
-                        Console.WriteLine("No output directory was supplied.");
-                        break;
-                    }
-                    if (args.Length < 2)
-                    {
-                        Console.WriteLine("No filename was supplied.");
-                        break;
-                    }
-                    Parse(args[1], args[2]);
+                    Run((string)ns["filename"]);
                     break;
-                default:
-                    Console.WriteLine($"Command '{args[1]}' doesn't exist");
-                    return;
+                case "parse":
+                    Parse((string)ns["filename"], (string)ns["outdir"]);
+                    break;
             }
         }
     }
