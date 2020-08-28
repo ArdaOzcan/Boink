@@ -1,5 +1,5 @@
 # Boink
-![](/res/boink-logo.jpg?raw=true "Boink Logo")
+![](https://raw.githubusercontent.com/ArdaOzcan/Boink/master/res/boink_logo.svg)
 
 Boink is an imperative and interpreted language written in C# for educational purposes and is currently in development.
 
@@ -10,7 +10,7 @@ Aim of Boink is to create a language that is both type safe and easy to write. A
 ### Framework & Language
 - Boink is written with **.NET Core** and **C#**. This means Boink is cross-platform since .NET Core is also cross-platform.
 
-- Boink also contains little **Python 3** scripts for automation of small things while development, these python scripts are not included in released Boink binary.
+- Boink also contains little **Python 3** scripts for automation of small things while development, these python scripts are not included in Boink binaries.
 ## Contributing
 ---
 You can contribute by opening issues, participating to them or modifying the source code to improve Boink.
@@ -74,7 +74,7 @@ int b = 1 + 2
 int a = b * 2
 ```
 #### With Functions
-You can alter the control flow using function calls as you would in languages like Perl or Python.
+You can alter the control flow using function calls as you would in languages like Javascript or Python.
 ```
 fn executeAfter(int b)
     # Executed second.
@@ -92,17 +92,14 @@ Boink is a type safe language aiming to prevent any type mismatch. This means ev
 #### Currently valid types:
 - int
 - float
+- double
 - bool
+- string
 - ~~dyn~~ (dyn is not implemented but still exists as a class)
 #### Types planned to be added:
-- string
-- double
 - list
 - array
 - set
-#### Note:
-
-Current floating number literals evaluate as float which causes low precision. Literals like `3.14` will be evaluated as doubles in further versions. (C#-like approach can be followed for float literals like `3.14f`)
 #### Example:
 ```
 # Correct.
@@ -124,12 +121,12 @@ fn half(int whole) -> float
 float x = half(1)   # gives 0.5
 ```
 ```
-fn half(int whole) -> float
+fn half(int whole) -> double
     give whole/2
 ;
 
 # Throws an error.
-# int and float mismatch
+# int and double mismatch
 int x = half(1)
 ```
 ### Definitions
@@ -138,13 +135,13 @@ Just like type checking, Boink also checks for previous definitions of variables
 Global variables in Boink are readable from inner scopes but can't be changed globally. Attempt to assign or declare a variable with the same name will override the definition of the global variable.
 ##### Example:
 ```
-float PI = 3.1415
-fn getPerimeter(float radius) -> float
+double PI = 3.1415
+fn getPerimeter(double radius) -> double
     # Can perfectly read global variable PI.
     give PI * radius * 2
 ;
 
-float perimeter = getPerimeter(2.0)  # gives 12.566
+double perimeter = getPerimeter(2.0)  # gives 12.566
 ```
 ```
 int foo = 1
@@ -158,8 +155,8 @@ int result = bar()  # It's 3 but 'foo' is still 1 in this scope
 You can also override a global variable with a different type.
 ```
 int foo = 1
-fn bar() -> float
-    float foo = 2.0 # Override the 'foo' definition with another type
+fn bar() -> double
+    double foo = 2.0 # Override the 'foo' definition with another type
     give foo + 1
 ;
 
@@ -216,29 +213,29 @@ if(definitelyNotTrue)
 ;
 ```
 *Lexed tokens in this example tokens would be as follows:*
-- BOOL_TYPE,
-- WORD,
-- EQUALS,
-- BOOL_LITERAL,
-- NEW_LINE,
-- IF,
-- L_PAR
-- WORD,
-- R_PAR,
-- NEW_LINE,
-- INT_TYPE,
-- WORD,
-- EQUALS,
-- INT_LITERAL,
-- SEMI_COLON,
-- NEW_LINE _(A new line is always added to the text by Boink)_
+- BoolType,
+- Word,
+- Equals,
+- BoolLiteral,
+- NewLine,
+- If,
+- LeftParenthesis
+- Word,
+- RightParenthesis,
+- NewLine,
+- IntType,
+- Word,
+- Equals,
+- IntLiteral,
+- SemiColon,
+- NewLine _(A new line is always added to the text by Boink)_
 
 ### 2. Parsing
 Every token is processed and converted into meaningful syntax nodes while parsing which make up the abstract syntax tree. An abstract syntax tree _(AST for short)_ allows Boink to traverse in it and make the Boink code easier to process.
 #### Example:
 ```
-fn thisIsAFunc(int argoneiguess) -> int
-    int result = argoneiguess
+fn thisIsAFunc(int argOne) -> int
+    int result = argOne
     give result
 ;
 ```
@@ -258,7 +255,7 @@ Parsed tree would be as follows for this code:
                                         "Token": "<IntType: 'int'>"
                                     }
                                 },
-                                "Name": "argoneiguess"
+                                "Name": "argOne"
                             }
                         }
                     ],
@@ -273,7 +270,7 @@ Parsed tree would be as follows for this code:
                                 "Name": "result",
                                 "Expression": {
                                     "VariableSyntax": {
-                                        "Name": "argoneiguess"
+                                        "Name": "argOne"
                                     }
                                 }
                             }
