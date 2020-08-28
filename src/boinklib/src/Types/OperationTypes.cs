@@ -65,65 +65,72 @@ namespace Boink.Types
                         Operation.Add, new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(int_) },
-                            { typeof(float_), typeof(float_)
-                        }
+                            { typeof(float_), typeof(float_)}, 
+                            { typeof(double_), typeof(double_)}
                     }
                     },
                     {
                         Operation.Subtract, new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(int_) },
-                            { typeof(float_), typeof(float_)
-                        }
+                            { typeof(float_), typeof(float_)}, 
+                            { typeof(double_), typeof(double_)}
                     }
                     },
                     {
                         Operation.Multiply,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(int_) },
-                            { typeof(float_), typeof(float_) }
+                            { typeof(float_), typeof(float_)}, 
+                            { typeof(double_), typeof(double_)}
                         }
                     },
                     {
                         Operation.Divide,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(float_) },
-                            { typeof(float_), typeof(float_) }
+                            { typeof(int_), typeof(double_) },
+                            { typeof(float_), typeof(float_)}, 
+                            { typeof(double_), typeof(double_)}
                         }
                     },
                     {
                         Operation.Greater,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) }
+                            { typeof(float_), typeof(bool_)}, 
+                            { typeof(double_), typeof(bool_)}
                         }
                     },
                     {
                         Operation.GreaterEquals,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) }
+                            { typeof(float_), typeof(bool_)}, 
+                            { typeof(double_), typeof(bool_)}
                         }
                     },
                     {
                         Operation.Less,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) }
+                            { typeof(float_), typeof(bool_)}, 
+                            { typeof(double_), typeof(bool_)}
                         }
                     },
                     {
                         Operation.LessEquals,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) }
+                            { typeof(float_), typeof(bool_)}, 
+                            { typeof(double_), typeof(bool_)}
                         }
                     },
                     {
                         Operation.EqualsEquals,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) }
+                            { typeof(float_), typeof(bool_)}, 
+                            { typeof(double_), typeof(bool_)}
                         }
                     }
                 }
@@ -135,63 +142,72 @@ namespace Boink.Types
                         Operation.Add, new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(float_) },
-                            { typeof(float_), typeof(float_) }
+                            { typeof(float_), typeof(float_) },
+                            { typeof(double_), typeof(double_) }
                         }
                     },
                     {
                         Operation.Subtract,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(float_) },
-                            { typeof(float_), typeof(float_) }
+                            { typeof(float_), typeof(float_) },
+                            { typeof(double_), typeof(double_) }
                         }
                     },
                     {
                         Operation.Multiply,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(float_) },
-                            { typeof(float_), typeof(float_) }
+                            { typeof(float_), typeof(float_) },
+                            { typeof(double_), typeof(double_) }
                         }
                     },
                     {
                         Operation.Divide,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(float_) },
-                            { typeof(float_), typeof(float_) }
+                            { typeof(float_), typeof(float_) },
+                            { typeof(double_), typeof(double_) }
                         }
                     },
                     {
                         Operation.Greater,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) }
+                            { typeof(float_), typeof(bool_) },
+                            { typeof(double_), typeof(bool_) }
                         }
                     },
                     {
                         Operation.GreaterEquals,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) }
+                            { typeof(float_), typeof(bool_) },
+                            { typeof(double_), typeof(bool_) }
                         }
                     },
                     {
                         Operation.Less,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) }
+                            { typeof(float_), typeof(bool_) },
+                            { typeof(double_), typeof(bool_) }
                         }
                     },
                     {
                         Operation.LessEquals,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) }
+                            { typeof(float_), typeof(bool_) },
+                            { typeof(double_), typeof(bool_) }
                         }
                     },
                     {
                         Operation.EqualsEquals,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) }
+                            { typeof(float_), typeof(bool_) },
+                            { typeof(double_), typeof(bool_) }
                         }
                     }
                 }
@@ -254,6 +270,7 @@ namespace Boink.Types
                         Operation.Greater,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(bool_) },
+                            { typeof(float_), typeof(bool_) },
                             { typeof(double_), typeof(bool_) }
                         }
                     },
@@ -261,6 +278,7 @@ namespace Boink.Types
                         Operation.GreaterEquals,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(bool_) },
+                            { typeof(float_), typeof(bool_) },
                             { typeof(double_), typeof(bool_) }
                         }
                     },
@@ -268,6 +286,7 @@ namespace Boink.Types
                         Operation.Less,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(bool_) },
+                            { typeof(float_), typeof(bool_) },
                             { typeof(double_), typeof(bool_) }
                         }
                     },
@@ -275,6 +294,7 @@ namespace Boink.Types
                         Operation.LessEquals,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(bool_) },
+                            { typeof(float_), typeof(bool_) },
                             { typeof(double_), typeof(bool_) }
                         }
                     },
@@ -282,7 +302,19 @@ namespace Boink.Types
                         Operation.EqualsEquals,new Dictionary<Type, Type>
                         {
                             { typeof(int_), typeof(bool_) },
+                            { typeof(float_), typeof(bool_) },
                             { typeof(double_), typeof(bool_) }
+                        }
+                    }
+                }
+            },
+            {
+                typeof(string_), new Dictionary<Operation, Dictionary<Type, Type>>
+                {
+                    {
+                        Operation.Add,new Dictionary<Type, Type>
+                        {
+                            { typeof(string_), typeof(string_) }
                         }
                     }
                 }

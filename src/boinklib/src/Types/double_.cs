@@ -13,6 +13,8 @@ namespace Boink.Types
                 return new double_(null, (double)Val + (int)other.Val);
             if (otherType == typeof(double_))
                 return new double_(null, (double)Val + (double)other.Val);
+            if (otherType == typeof(float_))
+                return new double_(null, (double)Val + (float)other.Val);
                 
             throw new Exception("Shouldn't have come here");
         }
@@ -24,6 +26,8 @@ namespace Boink.Types
                 return new double_(null, (double)Val - (int)other.Val);
             if (otherType == typeof(double_))
                 return new double_(null, (double)Val - (double)other.Val);
+            if (otherType == typeof(float_))
+                return new double_(null, (double)Val - (float)other.Val);
 
             throw new Exception("Shouldn't have come here");
         }
@@ -35,6 +39,9 @@ namespace Boink.Types
                 return new double_(null, (double)Val * (int)other.Val);
             if (otherType == typeof(double_))
                 return new double_(null, (double)Val * (double)other.Val);
+            if (otherType == typeof(float_))
+                return new double_(null, (double)Val * (float)other.Val);
+                
 
             throw new Exception("Shouldn't have come here");
         }
@@ -57,6 +64,9 @@ namespace Boink.Types
                 return new bool_(null, (double)Val < (int)other.Val);
             if (otherType == typeof(double_))
                 return new bool_(null, (double)Val < (double)other.Val);
+            if (otherType == typeof(float_))
+                return new double_(null, (double)Val < (float)other.Val);
+                
 
 
             throw new Exception("Shouldn't have come here");

@@ -17,6 +17,21 @@ namespace Boink.Types
                 return new int_(null, (int)Val * (int)other.Val);
             if (otherType == typeof(float_))
                 return new float_(null, (int)Val * (float)other.Val);
+            if (otherType == typeof(double_))
+                return new double_(null, (int)Val * (double)other.Val);
+                
+            throw new Exception("Shouldn't have come here");
+        }
+
+        public override object divide(obj_ other)
+        {
+            Type otherType = other.GetType();
+            if (otherType == typeof(int_))
+                return new double_(null, (int)Val / (double)(int)other.Val);
+            if (otherType == typeof(float_))
+                return new float_(null, (int)Val / (float)other.Val);
+            if (otherType == typeof(double_))
+                return new double_(null, (int)Val / (double)other.Val);
                 
             throw new Exception("Shouldn't have come here");
         }
@@ -28,6 +43,9 @@ namespace Boink.Types
                 return new int_(null, (int)Val + (int)other.Val);
             if (otherType == typeof(float_))
                 return new float_(null, (int)Val + (float)other.Val);
+            if (otherType == typeof(double_))
+                return new double_(null, (int)Val + (double)other.Val);
+
             throw new Exception("Shouldn't have come here");
         }
 
@@ -38,6 +56,8 @@ namespace Boink.Types
                 return new bool_(null, (int)Val < (int)other.Val);
             if (otherType == typeof(float_))
                 return new bool_(null, (int)Val < (float)other.Val);
+            if (otherType == typeof(double_))
+                return new bool_(null, (int)Val < (double)other.Val);
 
 
             throw new Exception("Shouldn't have come here");
@@ -50,6 +70,8 @@ namespace Boink.Types
                 return new int_(null, (int)Val - (int)other.Val);
             if (otherType == typeof(float_))
                 return new float_(null, (int)Val - (float)other.Val);
+            if (otherType == typeof(double_))
+                return new double_(null, (int)Val - (double)other.Val);
             throw new Exception("Shouldn't have come here");
         }
 

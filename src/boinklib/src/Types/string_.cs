@@ -6,6 +6,11 @@ namespace Boink.Types
         {
 
         }
+
+        public override object add(obj_ other)
+        {
+            return new string_(null, (string)Val + (string)other.Val);
+        }
     }
 
 }
