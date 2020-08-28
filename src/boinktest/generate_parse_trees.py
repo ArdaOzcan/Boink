@@ -11,6 +11,6 @@ namespace = parser.parse_args()
 
 for f in os.listdir(test_scripts_path):
     if f.endswith('.boink'):
-        stdout = os.popen(f"powershell ../boinkmain/bin/debug/netcoreapp3.1/boinkmain.exe parse {os.path.join(test_scripts_path, f)} {test_scripts_path}")
+        stdout = os.popen(f"powershell ../boink/bin/debug/netcoreapp3.1/boink.exe parse {os.path.join(test_scripts_path, f)} {test_scripts_path}")
         if namespace.verbose:
             print(stdout.read())
