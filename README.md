@@ -1,5 +1,8 @@
+<p align="center">
+  <img width="460" height="300" src="https://raw.githubusercontent.com/ArdaOzcan/Boink/master/res/boink_logo.svg">
+</p>
+
 # Boink
-![](https://raw.githubusercontent.com/ArdaOzcan/Boink/master/res/boink_logo.svg)
 
 Boink is an imperative and interpreted language written in C# for educational purposes and is currently in development.
 
