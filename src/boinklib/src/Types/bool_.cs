@@ -14,6 +14,12 @@ namespace Boink.Types
         {
             return new bool_(null, (bool)Val || (bool)other.Val);
         }
+
+        public override obj_ DeepCopy()
+        {
+            bool_ newObj = new bool_(this.Name, this.Val);
+            return newObj;
+        }
     }
 
 }

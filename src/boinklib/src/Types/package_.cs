@@ -6,5 +6,11 @@ namespace Boink.Types
         {
 
         }
+
+        public override obj_ DeepCopy()
+        {
+            package_ newObj = new package_(this.Name, this.Val);
+            return newObj;
+        }
     }
 }

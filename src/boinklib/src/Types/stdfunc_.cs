@@ -13,5 +13,11 @@ namespace Boink.Types
         {
             return (obj_)((MethodInfo)Val).Invoke(null, args);
         }
+
+        public override obj_ DeepCopy()
+        {
+            stdfunc_ newObj = new stdfunc_(this.Name, this.Val);
+            return newObj;
+        }
     }
 }
