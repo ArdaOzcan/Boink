@@ -71,7 +71,7 @@ namespace Boink.Interpretation.Library
                 foreach(var info in parameterInfos)
                     argTypes.Add(info.ParameterType);
 
-                libRecord[method.Name] = GetStandardFunctionObject(method);     
+                libRecord.DefineVar(method.Name, GetStandardFunctionObject(method));     
             }
 
             return new lib_(name, libRecord);

@@ -99,7 +99,7 @@ namespace Boink.Interpretation
             }
 
             ActivationRecord ar = ProgramCallStack.Peek;
-            ar[node.Name] = (obj_)ctorinfo.Invoke(new object[] { node.Name, val });
+            ar.DefineVar(node.Name, (obj_)ctorinfo.Invoke(new object[] { node.Name, val }));
             return null;
         }
 
@@ -120,7 +120,7 @@ namespace Boink.Interpretation
             else
                 parentRecord = node.Var.ParentRecord;
 
-            obj_ function = parentRecord[funcName];
+            obj_ function = parentRecord.GetVar(funcName);
             if(function.GetType() == typeof(function_))
                 return VisitUserDefinedFunction((function_)function);
             else
@@ -185,7 +185,7 @@ namespace Boink.Interpretation
                     if (var != null)
                         val = var.Val;
 
-                    functionRecord[argDecl.Name] = (obj_)ctorinfo.Invoke(new object[] { argDecl.Name, val });
+                    functionRecord.DefineVar(argDecl.Name, (obj_)ctorinfo.Invoke(new object[] { argDecl.Name, val }));
                 }
 
                 ProgramCallStack.Push(functionRecord);
@@ -218,7 +218,7 @@ namespace Boink.Interpretation
         {
             ActivationRecord ar = ProgramCallStack.Peek;
             string val = (string)node.Name.Val;
-            ar[(string)node.Name.Val] = new function_(val, node.Statements, node.Args);
+            ar.DefineVar((string)node.Name.Val, new function_(val, node.Statements, node.Args));
 
             return null;
         }
@@ -235,9 +235,9 @@ namespace Boink.Interpretation
             obj_ var;
 
             if(node.ParentRecord == null)
-                var = ProgramCallStack.Peek[varName];
+                var = ProgramCallStack.Peek.GetVar(varName);
             else
-                var = node.ParentRecord[varName];
+                var = node.ParentRecord.GetVar(varName);
 
             if(node.ChildReference != null)
             {
@@ -312,8 +312,7 @@ namespace Boink.Interpretation
             obj_ varValue = (obj_)Visit(node.Expr);
 
             ActivationRecord ar = ProgramCallStack.Peek;
-            obj_ var = ar[varName];
-            var.Val = varValue.Val;
+            ar.SetVar(varName, varValue);
 
             return null;
         }
@@ -390,13 +389,13 @@ namespace Boink.Interpretation
             if(DirCache.HasLibraryOrPackage(node.Package.Hierarchy))
             {
                 var importable = DirCache.GetLibraryOrPackageObject(node.Package.Hierarchy);
-                ProgramCallStack.Peek[importable.Name] = importable;
+                ProgramCallStack.Peek.DefineVar(importable.Name, importable);
                 
                 return null;
             }
 
             var stdlib = LibraryManager.GetStandardLibraryObject(node.Package.Root);
-            ProgramCallStack.Peek[stdlib.Name] = stdlib;
+            ProgramCallStack.Peek.DefineVar(stdlib.Name, stdlib);
                         
             return null;
         }

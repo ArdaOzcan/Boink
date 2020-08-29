@@ -59,45 +59,30 @@ namespace Boink.Interpretation
             Members = new Dictionary<string, obj_>();
         }
 
-        /// <summary>Set a variable or access a variable in memory.
-        /// <para>When getting, method first checks for the current activation record 
-        /// a.k.a. the local variables. But if the name doesn't exists
-        /// in the local scope, the method asks for the parent record
-        /// to search for the given name. If a variable actually exists
-        /// in the nonlocal or global scope, it deepcopies the variable
-        /// so change in value doesn't effect the outer scope.
-        /// </para>
-        /// <para>Note: If the variable doesn't exists, Boink would've caught it
-        /// during semantic analysis (class SemanticAnalyzer) so if
-        /// it throws a KeyError, something is wrong in SemanticAnalyzer.
-        /// </para>
-        /// </summary>
-        /// <value>A variable in the program memory.</value>
-        public obj_ this[string key]
+        public void SetVar(string name, obj_ value)
         {
-            set
-            {
-                Members[key] = value;
-            }
+            Members[name] = value;
+        }
 
-            get
-            {
-                obj_ objInCurrentScope = null;
-                Members.TryGetValue(key, out objInCurrentScope);
+        public void DefineVar(string name, obj_ value)
+        {
+            Members.Add(name, value);
+        }
 
-                if (objInCurrentScope == null)
-                {
-                    if (ParentRecord != null)
-                    {
-                        obj_ objInParentScope = ParentRecord[key];
-                        Members[key] = objInParentScope.DeepCopy();
-                        return Members[key];
-                    }
-                    throw new Exception("There is either an error in the semantic analyzer or the definition of variables.");
-                }
-                else
-                    return objInCurrentScope;
+        public obj_ GetVar(string name)
+        {
+            obj_ objInCurrentScope = null;
+            Members.TryGetValue(name, out objInCurrentScope);
+
+            if (objInCurrentScope == null)
+            {
+                if (ParentRecord != null)
+                    return ParentRecord.GetVar(name);
+                
+                throw new Exception("There is either an error in the semantic analyzer or the definition of variables.");
             }
+            else
+                return objInCurrentScope;
         }
 
         public override string ToString()

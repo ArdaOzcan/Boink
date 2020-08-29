@@ -229,9 +229,9 @@ namespace Boink.Interpretation.Library
             foreach (IImportableInfo info in libraryInfo.Importables.Values)
             {
                 if (info.IsPackage)
-                    libRecord[info.Name] = ConvertToPackageObject((PackageInfo)info);
+                    libRecord.DefineVar(info.Name, ConvertToPackageObject((PackageInfo)info));
                 else if (info.IsLibrary)
-                    libRecord[info.Name] = ConvertToLibraryObject((LibraryInfo)info);
+                    libRecord.DefineVar(info.Name, ConvertToLibraryObject((LibraryInfo)info));
             }
 
             return new lib_(libraryInfo.Name, libRecord);
@@ -274,7 +274,7 @@ namespace Boink.Interpretation.Library
                     {
                         var recordObj = ((lib_)currentImportable).Val;
                         var record = (ActivationRecord)recordObj;
-                        record[packageInfo.Name] = package;
+                        record.DefineVar(packageInfo.Name, package);
                     }
 
                     currentImportable = package;
