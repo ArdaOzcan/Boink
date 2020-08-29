@@ -13,7 +13,7 @@ namespace StandardLibrary
 
         public static void write(string_ text)
         {
-            Console.WriteLine(text.Val);
+            Console.Write(text.Val);
         }
 
         public static string_ readLine()
