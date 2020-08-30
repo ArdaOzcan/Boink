@@ -1,0 +1,3 @@
+[submodule "boink-python-demo"]
+	path = boink-python-demo
+	url = https://github.com/ArdaOzcan/boink-python-demo
