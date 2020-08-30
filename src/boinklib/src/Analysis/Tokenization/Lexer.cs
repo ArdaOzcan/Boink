@@ -237,7 +237,8 @@ namespace Boink.Analysis.Tokenization
         /// </summary>
         public void IgnoreWhitespace()
         {
-            while (CurrentChar != char.MinValue && CurrentChar == ' ')
+            while (CurrentChar != char.MinValue && 
+                   (CurrentChar == ' ' || CurrentChar == '\t'))
                 Pos += 1;
         }
 
