@@ -1,0 +1,3 @@
+[submodule "python-demo"]
+	path = python-demo
+	url = ./python-demo
