@@ -64,11 +64,11 @@ namespace Boink.Analysis.Parsing
         {
             TokenType.Star,
             TokenType.Slash,
-            TokenType.Greater,
-            TokenType.GreaterEquals,
-            TokenType.Less,
-            TokenType.LessEquals,
-            TokenType.EqualsEquals
+            // TokenType.Greater,
+            // TokenType.GreaterEquals,
+            // TokenType.Less,
+            // TokenType.LessEquals,
+            // TokenType.EqualsEquals
         };
 
         /// <summary>
