@@ -93,33 +93,5 @@ namespace Boink.Interpretation.Library
             return LoadedLibraries[type];
         }
 
-        // public void LoadLibrary(string dllPath)
-        // {
-        //     var DLL = Assembly.LoadFile(dllPath);
-        //     var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(dllPath);
-        //     LoadedLibraries[fileNameWithoutExtension] = DLL;
-        //     Console.WriteLine($"Loaded library '{fileNameWithoutExtension}'");
-        //     // InvokeDLLMethod("io", "IO.IO", "writeLine", new object[] {"lol i printed this"});
-        // }
-
-        // public object InvokeDLLMethod(string libName, string className, string methodName, object[] arguments)
-        // {
-        //     Assembly DLL;
-        //     if (!LoadedLibraries.TryGetValue(libName, out DLL))
-        //         throw new Exception($"Library '{libName}' not found.");
-
-        //     var classType = DLL.GetType(className);
-
-        //     if (classType == null)
-        //         throw new Exception($"Class '{className}' not found.");
-
-        //     MethodInfo methodInfo = classType.GetMethod(methodName);
-
-        //     if (methodInfo == null)
-        //         throw new Exception($"Method '{methodName}' not found.");
-
-        //     return methodInfo.Invoke(null, arguments);
-        // }
-
     }
 }
