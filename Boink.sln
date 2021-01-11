@@ -5,11 +5,11 @@ VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3C8DBC04-9615-4518-A5F5-B67F9F5A01F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "boinklib", "src\boinklib\boinklib.csproj", "{E95AC609-3BED-454C-A033-DBFCCF6349F4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "boinklib", "boinklib\boinklib.csproj", "{E95AC609-3BED-454C-A033-DBFCCF6349F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "boinktest", "src\boinktest\boinktest.csproj", "{65402699-172D-4217-BDA8-06CBFF6292DA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "boinktest", "boinktest\boinktest.csproj", "{65402699-172D-4217-BDA8-06CBFF6292DA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "boink", "src\boink\boink.csproj", "{BA6B8A48-5912-4079-A8DE-26C5CB70A0AB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "boink", "boink\boink.csproj", "{BA6B8A48-5912-4079-A8DE-26C5CB70A0AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
