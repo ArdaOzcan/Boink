@@ -125,7 +125,7 @@ namespace Boink.Analysis.Semantic
             if (node.GiveTypeSyntax != null)
             {
                 var tokenType = node.GiveTypeSyntax.TypeToken.Type;
-                giveType = obj_.GetTypeByTokenType(tokenType);
+                giveType = ObjectType.GetTypeByTokenType(tokenType);
             }
 
             // Create a symbol for the function.
@@ -283,7 +283,7 @@ namespace Boink.Analysis.Semantic
         public override object Visit(DeclarationSyntax node)
         {
             // Get the type of the type token.
-            var varType = obj_.GetTypeByTokenType(node.VarType.TypeToken.Type);
+            var varType = ObjectType.GetTypeByTokenType(node.VarType.TypeToken.Type);
 
             // Lookup for the variable in the current scope.
             var varSymbol = CurrentScope.LookupOnlyCurrentScope(node.Name);
@@ -519,7 +519,7 @@ namespace Boink.Analysis.Semantic
             Visit(node.Expr);
 
             // Check if the expression type is a Boink boolean.
-            if (node.Expr.Type != typeof(bool_))
+            if (node.Expr.Type != typeof(BoolType))
             {
                 // Throw a Boink error if the type is not a bool_.
                 ErrorHandler.Throw(new IncompatibleTypesError($"Type {node.Expr.Type} is not compatible for if preposition",

@@ -56,9 +56,9 @@ namespace Boink.Interpretation.Library
             LoadedLibraries.Add(type, symbolTable);
         }
 
-        public static stdfunc_ GetStandardFunctionObject(MethodInfo methodInfo) => new stdfunc_(methodInfo.Name, methodInfo);
+        public static StandardFunctionType GetStandardFunctionObject(MethodInfo methodInfo) => new StandardFunctionType(methodInfo.Name, methodInfo);
 
-        public static lib_ GetStandardLibraryObject(string name)
+        public static LibraryType GetStandardLibraryObject(string name)
         {
             var type = StandardLibraries[name];
             var libRecord = new ActivationRecord(name, 0, null);
@@ -74,7 +74,7 @@ namespace Boink.Interpretation.Library
                 libRecord.DefineVar(method.Name, GetStandardFunctionObject(method));     
             }
 
-            return new lib_(name, libRecord);
+            return new LibraryType(name, libRecord);
         }
 
         public bool HasStandardLibrary(string name)

@@ -23,7 +23,7 @@ namespace Boink.AST.Nodes
             get
             {
                 Type type = null;
-                obj_.TypeDictionary.TryGetValue(VarType.TypeToken.Type, out type);
+                ObjectType.TypeDictionary.TryGetValue(VarType.TypeToken.Type, out type);
                 return type;
             }
         }

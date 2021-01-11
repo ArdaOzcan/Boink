@@ -28,7 +28,7 @@ namespace Boink.Analysis.Semantic.Symbols
         /// <param name="name">Name of the symbol.</param>
         /// <param name="importables">Importables that this library contains.</param>
         /// <returns></returns>
-        public LibrarySymbol(string name, SymbolTable importables) : base(typeof(lib_), name)
+        public LibrarySymbol(string name, SymbolTable importables) : base(typeof(LibraryType), name)
         {
             Importables = importables;
         }

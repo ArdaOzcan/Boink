@@ -4,7 +4,7 @@ using Boink.AST.Nodes;
 
 namespace Boink.Types
 {
-    public sealed class function_ : obj_
+    public sealed class FunctionType : ObjectType
     {
         public List<DeclarationSyntax> Args { get; private set; }
 
@@ -12,7 +12,7 @@ namespace Boink.Types
         
         public object GiveVal { get; private set; }
 
-        public function_(string name, object val, List<DeclarationSyntax> args) : base(name, val)
+        public FunctionType(string name, object val, List<DeclarationSyntax> args) : base(name, val)
         {
             Args = args;
             Gave = false;
@@ -27,9 +27,9 @@ namespace Boink.Types
 
         public override string ToString() => $"<function_ '{Name}'>";
 
-        public override obj_ DeepCopy()
+        public override ObjectType DeepCopy()
         {
-            function_ newObj = new function_(this.Name, this.Val, this.Args);
+            FunctionType newObj = new FunctionType(this.Name, this.Val, this.Args);
             return newObj;
         }
     }

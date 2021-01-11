@@ -32,7 +32,7 @@ namespace Boink.Analysis.Semantic.Symbols
         /// </summary>
         /// <param name="name">Name of the package.</param>
         /// <param name="root">Root syntax node of the package.</param>
-        public PackageSymbol(string name, ProgramSyntax root) : base(typeof(package_), name)
+        public PackageSymbol(string name, ProgramSyntax root) : base(typeof(PackageType), name)
         {
             Root = root;
         }

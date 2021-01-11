@@ -21,7 +21,7 @@ namespace Boink.AST.Nodes
                 if(ChildReference != null)
                     return ChildReference.Type;
                     
-                return typeof(int_);
+                return typeof(IntType);
             }
         }
 

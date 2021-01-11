@@ -6,19 +6,19 @@ namespace StandardLibrary
 {
     public static class io
     {
-        public static void writeLine(string_ text)
+        public static void writeLine(StringType text)
         {
             Console.WriteLine(text.Val);
         }
 
-        public static void write(string_ text)
+        public static void write(StringType text)
         {
             Console.Write(text.Val);
         }
 
-        public static string_ readLine()
+        public static StringType readLine()
         {
-            return new string_(null, Console.ReadLine());
+            return new StringType(null, Console.ReadLine());
         }
     }
 }

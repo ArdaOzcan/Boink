@@ -17,21 +17,21 @@ namespace Boink.Types
         public static readonly Dictionary<Type, HashSet<Operation>> UnaryOperationTypes = new Dictionary<Type, HashSet<Operation>>
         {
             {
-                typeof(int_), new HashSet<Operation>
+                typeof(IntType), new HashSet<Operation>
                 {
                     { Operation.Positive },
                     { Operation.Negative }
                 }
             },
             {
-                typeof(float_), new HashSet<Operation>
+                typeof(FloatType), new HashSet<Operation>
                 {
                     { Operation.Positive },
                     { Operation.Negative }
                 }
             },
             {
-                typeof(double_), new HashSet<Operation>
+                typeof(DoubleType), new HashSet<Operation>
                 {
                     { Operation.Positive },
                     { Operation.Negative }
@@ -59,262 +59,262 @@ namespace Boink.Types
         private static readonly Dictionary<Type, Dictionary<Operation, Dictionary<Type, Type>>> BinaryOperationResultTypes = new Dictionary<Type, Dictionary<Operation, Dictionary<Type, Type>>>
         {
             {
-                typeof(int_), new Dictionary<Operation, Dictionary<Type, Type>>
+                typeof(IntType), new Dictionary<Operation, Dictionary<Type, Type>>
                 {
                     {
                         Operation.Add, new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(int_) },
-                            { typeof(float_), typeof(float_)}, 
-                            { typeof(double_), typeof(double_)}
+                            { typeof(IntType), typeof(IntType) },
+                            { typeof(FloatType), typeof(FloatType)}, 
+                            { typeof(DoubleType), typeof(DoubleType)}
                     }
                     },
                     {
                         Operation.Subtract, new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(int_) },
-                            { typeof(float_), typeof(float_)}, 
-                            { typeof(double_), typeof(double_)}
+                            { typeof(IntType), typeof(IntType) },
+                            { typeof(FloatType), typeof(FloatType)}, 
+                            { typeof(DoubleType), typeof(DoubleType)}
                     }
                     },
                     {
                         Operation.Multiply,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(int_) },
-                            { typeof(float_), typeof(float_)}, 
-                            { typeof(double_), typeof(double_)}
+                            { typeof(IntType), typeof(IntType) },
+                            { typeof(FloatType), typeof(FloatType)}, 
+                            { typeof(DoubleType), typeof(DoubleType)}
                         }
                     },
                     {
                         Operation.Divide,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(double_) },
-                            { typeof(float_), typeof(float_)}, 
-                            { typeof(double_), typeof(double_)}
+                            { typeof(IntType), typeof(DoubleType) },
+                            { typeof(FloatType), typeof(FloatType)}, 
+                            { typeof(DoubleType), typeof(DoubleType)}
                         }
                     },
                     {
                         Operation.Greater,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_)}, 
-                            { typeof(double_), typeof(bool_)}
+                            { typeof(IntType), typeof(BoolType) },
+                            { typeof(FloatType), typeof(BoolType)}, 
+                            { typeof(DoubleType), typeof(BoolType)}
                         }
                     },
                     {
                         Operation.GreaterEquals,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_)}, 
-                            { typeof(double_), typeof(bool_)}
+                            { typeof(IntType), typeof(BoolType) },
+                            { typeof(FloatType), typeof(BoolType)}, 
+                            { typeof(DoubleType), typeof(BoolType)}
                         }
                     },
                     {
                         Operation.Less,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_)}, 
-                            { typeof(double_), typeof(bool_)}
+                            { typeof(IntType), typeof(BoolType) },
+                            { typeof(FloatType), typeof(BoolType)}, 
+                            { typeof(DoubleType), typeof(BoolType)}
                         }
                     },
                     {
                         Operation.LessEquals,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_)}, 
-                            { typeof(double_), typeof(bool_)}
+                            { typeof(IntType), typeof(BoolType) },
+                            { typeof(FloatType), typeof(BoolType)}, 
+                            { typeof(DoubleType), typeof(BoolType)}
                         }
                     },
                     {
                         Operation.EqualsEquals,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_)}, 
-                            { typeof(double_), typeof(bool_)}
+                            { typeof(IntType), typeof(BoolType) },
+                            { typeof(FloatType), typeof(BoolType)}, 
+                            { typeof(DoubleType), typeof(BoolType)}
                         }
                     }
                 }
             },
             {
-                typeof(float_),new Dictionary<Operation, Dictionary<Type, Type>>
+                typeof(FloatType),new Dictionary<Operation, Dictionary<Type, Type>>
                 {
                     {
                         Operation.Add, new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(float_) },
-                            { typeof(float_), typeof(float_) },
-                            { typeof(double_), typeof(double_) }
+                            { typeof(IntType), typeof(FloatType) },
+                            { typeof(FloatType), typeof(FloatType) },
+                            { typeof(DoubleType), typeof(DoubleType) }
                         }
                     },
                     {
                         Operation.Subtract,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(float_) },
-                            { typeof(float_), typeof(float_) },
-                            { typeof(double_), typeof(double_) }
+                            { typeof(IntType), typeof(FloatType) },
+                            { typeof(FloatType), typeof(FloatType) },
+                            { typeof(DoubleType), typeof(DoubleType) }
                         }
                     },
                     {
                         Operation.Multiply,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(float_) },
-                            { typeof(float_), typeof(float_) },
-                            { typeof(double_), typeof(double_) }
+                            { typeof(IntType), typeof(FloatType) },
+                            { typeof(FloatType), typeof(FloatType) },
+                            { typeof(DoubleType), typeof(DoubleType) }
                         }
                     },
                     {
                         Operation.Divide,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(float_) },
-                            { typeof(float_), typeof(float_) },
-                            { typeof(double_), typeof(double_) }
+                            { typeof(IntType), typeof(FloatType) },
+                            { typeof(FloatType), typeof(FloatType) },
+                            { typeof(DoubleType), typeof(DoubleType) }
                         }
                     },
                     {
                         Operation.Greater,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) },
-                            { typeof(double_), typeof(bool_) }
+                            { typeof(IntType), typeof(BoolType) },
+                            { typeof(FloatType), typeof(BoolType) },
+                            { typeof(DoubleType), typeof(BoolType) }
                         }
                     },
                     {
                         Operation.GreaterEquals,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) },
-                            { typeof(double_), typeof(bool_) }
+                            { typeof(IntType), typeof(BoolType) },
+                            { typeof(FloatType), typeof(BoolType) },
+                            { typeof(DoubleType), typeof(BoolType) }
                         }
                     },
                     {
                         Operation.Less,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) },
-                            { typeof(double_), typeof(bool_) }
+                            { typeof(IntType), typeof(BoolType) },
+                            { typeof(FloatType), typeof(BoolType) },
+                            { typeof(DoubleType), typeof(BoolType) }
                         }
                     },
                     {
                         Operation.LessEquals,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) },
-                            { typeof(double_), typeof(bool_) }
+                            { typeof(IntType), typeof(BoolType) },
+                            { typeof(FloatType), typeof(BoolType) },
+                            { typeof(DoubleType), typeof(BoolType) }
                         }
                     },
                     {
                         Operation.EqualsEquals,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) },
-                            { typeof(double_), typeof(bool_) }
+                            { typeof(IntType), typeof(BoolType) },
+                            { typeof(FloatType), typeof(BoolType) },
+                            { typeof(DoubleType), typeof(BoolType) }
                         }
                     }
                 }
             },
             {
-                typeof(bool_),new Dictionary<Operation, Dictionary<Type, Type>>
+                typeof(BoolType),new Dictionary<Operation, Dictionary<Type, Type>>
                 {
                     {
                         Operation.And, new Dictionary<Type, Type>
                         {
-                            { typeof(bool_), typeof(bool_) },
+                            { typeof(BoolType), typeof(BoolType) },
                         }
                     },
                     {
                         Operation.Or,new Dictionary<Type, Type>
                         {
-                            { typeof(bool_), typeof(bool_) },
+                            { typeof(BoolType), typeof(BoolType) },
                         }
                     },
                     {
                         Operation.EqualsEquals,new Dictionary<Type, Type>
                         {
-                            { typeof(bool_), typeof(bool_) },
+                            { typeof(BoolType), typeof(BoolType) },
                         }
                     }
                 }
             },
             {
-                typeof(double_), new Dictionary<Operation, Dictionary<Type, Type>>
+                typeof(DoubleType), new Dictionary<Operation, Dictionary<Type, Type>>
                 {
                     {
                         Operation.Add, new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(double_) },
-                            { typeof(double_), typeof(double_) }
+                            { typeof(IntType), typeof(DoubleType) },
+                            { typeof(DoubleType), typeof(DoubleType) }
                         }
                     },
                     {
                         Operation.Subtract,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(double_) },
-                            { typeof(double_), typeof(double_) }
+                            { typeof(IntType), typeof(DoubleType) },
+                            { typeof(DoubleType), typeof(DoubleType) }
                         }
                     },
                     {
                         Operation.Multiply,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(double_) },
-                            { typeof(double_), typeof(double_) }
+                            { typeof(IntType), typeof(DoubleType) },
+                            { typeof(DoubleType), typeof(DoubleType) }
                         }
                     },
                     {
                         Operation.Divide,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(double_) },
-                            { typeof(double_), typeof(double_) }
+                            { typeof(IntType), typeof(DoubleType) },
+                            { typeof(DoubleType), typeof(DoubleType) }
                         }
                     },
                     {
                         Operation.Greater,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) },
-                            { typeof(double_), typeof(bool_) }
+                            { typeof(IntType), typeof(BoolType) },
+                            { typeof(FloatType), typeof(BoolType) },
+                            { typeof(DoubleType), typeof(BoolType) }
                         }
                     },
                     {
                         Operation.GreaterEquals,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) },
-                            { typeof(double_), typeof(bool_) }
+                            { typeof(IntType), typeof(BoolType) },
+                            { typeof(FloatType), typeof(BoolType) },
+                            { typeof(DoubleType), typeof(BoolType) }
                         }
                     },
                     {
                         Operation.Less,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) },
-                            { typeof(double_), typeof(bool_) }
+                            { typeof(IntType), typeof(BoolType) },
+                            { typeof(FloatType), typeof(BoolType) },
+                            { typeof(DoubleType), typeof(BoolType) }
                         }
                     },
                     {
                         Operation.LessEquals,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) },
-                            { typeof(double_), typeof(bool_) }
+                            { typeof(IntType), typeof(BoolType) },
+                            { typeof(FloatType), typeof(BoolType) },
+                            { typeof(DoubleType), typeof(BoolType) }
                         }
                     },
                     {
                         Operation.EqualsEquals,new Dictionary<Type, Type>
                         {
-                            { typeof(int_), typeof(bool_) },
-                            { typeof(float_), typeof(bool_) },
-                            { typeof(double_), typeof(bool_) }
+                            { typeof(IntType), typeof(BoolType) },
+                            { typeof(FloatType), typeof(BoolType) },
+                            { typeof(DoubleType), typeof(BoolType) }
                         }
                     }
                 }
             },
             {
-                typeof(string_), new Dictionary<Operation, Dictionary<Type, Type>>
+                typeof(StringType), new Dictionary<Operation, Dictionary<Type, Type>>
                 {
                     {
                         Operation.Add,new Dictionary<Type, Type>
                         {
-                            { typeof(string_), typeof(string_) }
+                            { typeof(StringType), typeof(StringType) }
                         }
                     }
                 }

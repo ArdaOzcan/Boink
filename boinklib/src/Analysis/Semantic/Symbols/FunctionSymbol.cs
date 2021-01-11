@@ -26,7 +26,7 @@ namespace Boink.Analysis.Semantic.Symbols
         /// <param name="argTypes">List of argument types for semantic analysis.</param>
         /// <param name="name">Name of the variable.</param>
         /// <param name="giveType">Given type from the function.</param>
-        public FunctionSymbol(List<Type> argTypes, string name, Type giveType) : base(typeof(function_), name)
+        public FunctionSymbol(List<Type> argTypes, string name, Type giveType) : base(typeof(FunctionType), name)
         {
             ArgTypes = argTypes;
             GiveType = giveType;

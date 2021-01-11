@@ -19,14 +19,14 @@ namespace Boink.AST.Nodes
 
         public override int Pos => LiteralToken.Pos;
 
-        public override Type Type => typeof(float_);
+        public override Type Type => typeof(FloatType);
 
         public override Dictionary<string, object> JsonDict
         {
             get
             {
                 var result = new Dictionary<string, object>();
-                result.Add("DoubleLiteralSyntax", Val);
+                result.Add("FloatLiteralSyntax", Val);
                 return result;
             }
         }

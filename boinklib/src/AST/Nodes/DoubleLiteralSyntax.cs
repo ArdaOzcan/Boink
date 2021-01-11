@@ -19,7 +19,7 @@ namespace Boink.AST.Nodes
 
         public override int Pos => LiteralToken.Pos;
 
-        public override Type Type => typeof(double_);
+        public override Type Type => typeof(DoubleType);
 
         public override Dictionary<string, object> JsonDict
         {

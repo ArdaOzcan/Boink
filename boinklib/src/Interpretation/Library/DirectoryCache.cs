@@ -198,7 +198,7 @@ namespace Boink.Interpretation.Library
         /// </summary>
         /// <param name="packageInfo">Information of the package.</param>
         /// <returns>A package_ object.</returns>
-        package_ ConvertToPackageObject(PackageInfo packageInfo)
+        PackageType ConvertToPackageObject(PackageInfo packageInfo)
         {
             var lexer = new Lexer(packageInfo.Path);
             var parser = new Parser(lexer);
@@ -214,7 +214,7 @@ namespace Boink.Interpretation.Library
 
             var packageRecord = interpreter.Interpret(root);
 
-            return new package_(packageInfo.Name, packageRecord);
+            return new PackageType(packageInfo.Name, packageRecord);
         }
 
         /// <summary>
@@ -223,7 +223,7 @@ namespace Boink.Interpretation.Library
         /// </summary>
         /// <param name="libraryInfo">Information of the library.</param>
         /// <returns>A lib_ object.</returns>
-        lib_ ConvertToLibraryObject(LibraryInfo libraryInfo)
+        LibraryType ConvertToLibraryObject(LibraryInfo libraryInfo)
         {
             var libRecord = new ActivationRecord(libraryInfo.Name, 0, null);
             foreach (IImportableInfo info in libraryInfo.Importables.Values)
@@ -234,7 +234,7 @@ namespace Boink.Interpretation.Library
                     libRecord.DefineVar(info.Name, ConvertToLibraryObject((LibraryInfo)info));
             }
 
-            return new lib_(libraryInfo.Name, libRecord);
+            return new LibraryType(libraryInfo.Name, libRecord);
         }
 
         /// <summary>
@@ -242,17 +242,17 @@ namespace Boink.Interpretation.Library
         /// </summary>
         /// <param name="hierarchy">A list of strings which represents the hierarchical order of the package/library</param>
         /// <returns>An object that represents an importable.</returns>
-        public obj_ GetLibraryOrPackageObject(List<string> hierarchy)
+        public ObjectType GetLibraryOrPackageObject(List<string> hierarchy)
         {
-            obj_ firstImportable = null;
-            obj_ currentImportable = null;
+            ObjectType firstImportable = null;
+            ObjectType currentImportable = null;
             int pos = 0;
 
             foreach(IImportableInfo info in GetImportableInfos(hierarchy))
             {
                 if (info.IsLibrary)
                 {
-                    obj_ lib;
+                    ObjectType lib;
                     var libInfo = (LibraryInfo)info;
 
                     if (pos == hierarchy.Count - 1)
@@ -260,7 +260,7 @@ namespace Boink.Interpretation.Library
                     else
                     {
                         var libRecord = new ActivationRecord(libInfo.Name, 0, null);
-                        lib = new lib_(libInfo.Name, libRecord);
+                        lib = new LibraryType(libInfo.Name, libRecord);
                     }
 
                     currentImportable = lib;
@@ -268,11 +268,11 @@ namespace Boink.Interpretation.Library
                 else if (info.IsPackage)
                 {
                     var packageInfo = (PackageInfo)info;
-                    obj_ package = ConvertToPackageObject(packageInfo);
+                    ObjectType package = ConvertToPackageObject(packageInfo);
                     if (currentImportable != null && 
-                        currentImportable.GetType() == typeof(lib_))
+                        currentImportable.GetType() == typeof(LibraryType))
                     {
-                        var recordObj = ((lib_)currentImportable).Val;
+                        var recordObj = ((LibraryType)currentImportable).Val;
                         var record = (ActivationRecord)recordObj;
                         record.DefineVar(packageInfo.Name, package);
                     }

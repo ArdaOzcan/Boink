@@ -41,37 +41,37 @@ namespace Boink.Interpretation
 
         public ActivationRecord ParentRecord { get; private set; }
 
-        public function_ Owner { get; private set; }
+        public FunctionType Owner { get; private set; }
 
-        public Dictionary<string, obj_> Members { get; private set; }
+        public Dictionary<string, ObjectType> Members { get; private set; }
 
         /// <summary>Construct an ActivationRecord object.</summary>
         /// <param name="name">Name of the procedure that is called.</param>
         /// <param name="nestingLevel">Nesting level of the activation.</param>
         /// <param name="parentRecord">Caller of the activation.</param>
         /// <param name="owner">Owner of the record, a function. Defaults to null.</param>
-        public ActivationRecord(string name, int nestingLevel, ActivationRecord parentRecord, function_ owner = null)
+        public ActivationRecord(string name, int nestingLevel, ActivationRecord parentRecord, FunctionType owner = null)
         {
             Name = name;
             NestingLevel = nestingLevel;
             ParentRecord = parentRecord;
             Owner = owner;
-            Members = new Dictionary<string, obj_>();
+            Members = new Dictionary<string, ObjectType>();
         }
 
-        public void SetVar(string name, obj_ value)
+        public void SetVar(string name, ObjectType value)
         {
             Members[name] = value;
         }
 
-        public void DefineVar(string name, obj_ value)
+        public void DefineVar(string name, ObjectType value)
         {
             Members.Add(name, value);
         }
 
-        public obj_ GetVar(string name)
+        public ObjectType GetVar(string name)
         {
-            obj_ objInCurrentScope = null;
+            ObjectType objInCurrentScope = null;
             Members.TryGetValue(name, out objInCurrentScope);
 
             if (objInCurrentScope == null)
@@ -89,7 +89,7 @@ namespace Boink.Interpretation
         {
             List<string> lines = new List<string> { $"{NestingLevel} {Name}" };
             lines.Add("{");
-            foreach (KeyValuePair<string, obj_> kv in Members)
+            foreach (KeyValuePair<string, ObjectType> kv in Members)
                 lines.Add($"   {kv.Key}: {kv.Value.ToString()}");
 
             lines.Add("}");

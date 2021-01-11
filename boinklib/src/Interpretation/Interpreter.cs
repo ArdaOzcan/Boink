@@ -87,19 +87,19 @@ namespace Boink.Interpretation
         /// <returns>Null.</returns>
         public override object Visit(DeclarationSyntax node)
         {
-            Type varType = obj_.GetTypeByTokenType(node.VarType.TypeToken.Type);
+            Type varType = ObjectType.GetTypeByTokenType(node.VarType.TypeToken.Type);
             ConstructorInfo ctorinfo = varType.GetConstructor(new[] { typeof(string), typeof(object) });
 
-            obj_ var = null;
+            ObjectType var = null;
             object val = null;
             if (node.Expr != null)
             {
-                var = (obj_)Visit(node.Expr);
+                var = (ObjectType)Visit(node.Expr);
                 val = var.Val;
             }
 
             ActivationRecord ar = ProgramCallStack.Peek;
-            ar.DefineVar(node.Name, (obj_)ctorinfo.Invoke(new object[] { node.Name, val }));
+            ar.DefineVar(node.Name, (ObjectType)ctorinfo.Invoke(new object[] { node.Name, val }));
             return null;
         }
 
@@ -120,13 +120,13 @@ namespace Boink.Interpretation
             else
                 parentRecord = node.Var.ParentRecord;
 
-            obj_ function = parentRecord.GetVar(funcName);
-            if(function.GetType() == typeof(function_))
-                return VisitUserDefinedFunction((function_)function);
+            ObjectType function = parentRecord.GetVar(funcName);
+            if(function.GetType() == typeof(FunctionType))
+                return VisitUserDefinedFunction((FunctionType)function);
             else
-                return VisitStandardFunction((stdfunc_)function);
+                return VisitStandardFunction((StandardFunctionType)function);
 
-            object VisitStandardFunction(stdfunc_ func)
+            object VisitStandardFunction(StandardFunctionType func)
             {
                 ParameterInfo[] parameters = ((MethodInfo)func.Val).GetParameters();
                 List<SyntaxNode> passedArgs = node.Args;
@@ -139,13 +139,13 @@ namespace Boink.Interpretation
 
                     ConstructorInfo ctorinfo = varType.GetConstructor(new[] { typeof(string), typeof(object) });
 
-                    obj_ var = (obj_)Visit(passedArg);
+                    ObjectType var = (ObjectType)Visit(passedArg);
 
                     object val = null;
                     if (var != null)
                         val = var.Val;
 
-                    arguments[i] = (obj_)ctorinfo.Invoke(new object[] { parameters[i].Name, val });
+                    arguments[i] = (ObjectType)ctorinfo.Invoke(new object[] { parameters[i].Name, val });
                 }
 
                 WriteLineIfVerbose($"------- START OF FUNCTION {funcName} -------");
@@ -157,7 +157,7 @@ namespace Boink.Interpretation
                 return giveVal;
             }
 
-            object VisitUserDefinedFunction(function_ func)
+            object VisitUserDefinedFunction(FunctionType func)
             {
                 ActivationRecord functionRecord = new ActivationRecord(
                                 name: funcName,
@@ -175,17 +175,17 @@ namespace Boink.Interpretation
                     SyntaxNode passedArg = passedArgs[i];
 
                     TokenType tokenType = argDecl.VarType.TypeToken.Type;
-                    Type varType = obj_.GetTypeByTokenType(tokenType);
+                    Type varType = ObjectType.GetTypeByTokenType(tokenType);
 
                     ConstructorInfo ctorinfo = varType.GetConstructor(new[] { typeof(string), typeof(object) });
 
-                    obj_ var = (obj_)Visit(passedArg);
+                    ObjectType var = (ObjectType)Visit(passedArg);
 
                     object val = null;
                     if (var != null)
                         val = var.Val;
 
-                    functionRecord.DefineVar(argDecl.Name, (obj_)ctorinfo.Invoke(new object[] { argDecl.Name, val }));
+                    functionRecord.DefineVar(argDecl.Name, (ObjectType)ctorinfo.Invoke(new object[] { argDecl.Name, val }));
                 }
 
                 ProgramCallStack.Push(functionRecord);
@@ -218,7 +218,7 @@ namespace Boink.Interpretation
         {
             ActivationRecord ar = ProgramCallStack.Peek;
             string val = (string)node.Name.Val;
-            ar.DefineVar((string)node.Name.Val, new function_(val, node.Statements, node.Args));
+            ar.DefineVar((string)node.Name.Val, new FunctionType(val, node.Statements, node.Args));
 
             return null;
         }
@@ -232,7 +232,7 @@ namespace Boink.Interpretation
         {
             string varName = node.Name;
 
-            obj_ var;
+            ObjectType var;
 
             if(node.ParentRecord == null)
                 var = ProgramCallStack.Peek.GetVar(varName);
@@ -242,7 +242,7 @@ namespace Boink.Interpretation
             if(node.ChildReference != null)
             {
                 Type type = var.GetType();
-                if (type == typeof(package_) || type == typeof(lib_))
+                if (type == typeof(PackageType) || type == typeof(LibraryType))
                 {
                     Type childType = node.ChildReference.GetType();
                     ActivationRecord record = (ActivationRecord)var.Val;
@@ -255,7 +255,7 @@ namespace Boink.Interpretation
                     
                 }
 
-                var = (obj_)Visit(node.ChildReference);
+                var = (ObjectType)Visit(node.ChildReference);
             }
 
             return var;
@@ -269,8 +269,8 @@ namespace Boink.Interpretation
         /// <returns>Evaluated result.</returns>
         public override object Visit(BinaryOperationSyntax node)
         {
-            obj_ left = (obj_)Visit(node.Left);
-            obj_ right = (obj_)Visit(node.Right);
+            ObjectType left = (ObjectType)Visit(node.Left);
+            ObjectType right = (ObjectType)Visit(node.Right);
 
             switch (node.Operator.Type)
             {
@@ -309,7 +309,7 @@ namespace Boink.Interpretation
         public override object Visit(AssignmentSyntax node)
         {
             string varName = node.Var.Name;
-            obj_ varValue = (obj_)Visit(node.Expr);
+            ObjectType varValue = (ObjectType)Visit(node.Expr);
 
             ActivationRecord ar = ProgramCallStack.Peek;
             ar.SetVar(varName, varValue);
@@ -322,21 +322,21 @@ namespace Boink.Interpretation
         /// </summary>
         /// <param name="node">Int literal syntax node.</param>
         /// <returns>Boink int_ object.</returns>
-        public override object Visit(IntLiteralSyntax node) => new int_(null, (int)node.Val);
+        public override object Visit(IntLiteralSyntax node) => new IntType(null, (int)node.Val);
 
         /// <summary>
         /// Return the Boink float_ object.
         /// </summary>
         /// <param name="node">Float literal syntax node.</param>
         /// <returns>Boink float_ object.</returns>
-        public override object Visit(DoubleLiteralSyntax node) => new double_(null, (double)node.Val);
+        public override object Visit(DoubleLiteralSyntax node) => new DoubleType(null, (double)node.Val);
 
         /// <summary>
         /// Return the Boink bool_ object.
         /// </summary>
         /// <param name="node">Bool literal syntax node.</param>
         /// <returns>Boink bool_ object.</returns>
-        public override object Visit(BoolLiteralSyntax node) => new bool_(null, (bool)node.Val);
+        public override object Visit(BoolLiteralSyntax node) => new BoolType(null, (bool)node.Val);
 
         /// <summary>
         /// Call give on the current function.
@@ -345,7 +345,7 @@ namespace Boink.Interpretation
         /// <returns>Null.</returns>
         public override object Visit(GiveSyntax node)
         {
-            function_ func_symbol = ProgramCallStack.Peek.Owner;
+            FunctionType func_symbol = ProgramCallStack.Peek.Owner;
             if (node.Expr == null)
             {
                 func_symbol.Give(null);
@@ -363,7 +363,7 @@ namespace Boink.Interpretation
         /// <returns>Null.</returns>
         public override object Visit(IfSyntax node)
         {
-            bool_ prepositionVal = (bool_)Visit(node.Expr);
+            BoolType prepositionVal = (BoolType)Visit(node.Expr);
             if (prepositionVal == null)
                 return null;
 
@@ -382,7 +382,7 @@ namespace Boink.Interpretation
         /// <returns>What is returned from the expression.</returns>
         public override object Visit(ParenthesizedSyntax node) => Visit(node.Expr);
 
-        public override object Visit(StringLiteralSyntax node) => new string_(null, (string)node.Val);
+        public override object Visit(StringLiteralSyntax node) => new StringType(null, (string)node.Val);
 
         public override object Visit(ImportSyntax node)
         {
@@ -402,7 +402,7 @@ namespace Boink.Interpretation
 
         public override object Visit(UnaryOperationSyntax node)
         {
-            obj_ obj = (obj_)Visit(node.Expr);
+            ObjectType obj = (ObjectType)Visit(node.Expr);
             switch (node.Operator.Type)
             {
                 case TokenType.Plus:
@@ -414,7 +414,7 @@ namespace Boink.Interpretation
             }
         }
 
-        public override object Visit(FloatLiteralSyntax node) => new float_(null, (float)node.Val);
+        public override object Visit(FloatLiteralSyntax node) => new FloatType(null, (float)node.Val);
     }
 
 }
