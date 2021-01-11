@@ -98,7 +98,7 @@ Boink is a type safe language aiming to prevent any type mismatch. This means ev
 - double
 - bool
 - string
-- ~~dyn~~ (dyn is not implemented but still exists as a class)
+
 #### Types planned to be added:
 - list
 - array
