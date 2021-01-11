@@ -37,8 +37,6 @@ namespace Boink.Analysis.Tokenization
         RightParenthesis,
         /// <summary> ; </summary>
         Semicolon,
-        /// <summary> dyn </summary>
-        DynamicType,
         /// <summary> int </summary>
         IntType,
         /// <summary> , </summary>

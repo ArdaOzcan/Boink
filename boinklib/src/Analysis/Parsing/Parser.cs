@@ -27,7 +27,6 @@ namespace Boink.Analysis.Parsing
         /// </summary>
         static HashSet<TokenType> TypeTokens = new HashSet<TokenType>
         {
-            TokenType.DynamicType,
             TokenType.IntType,
             TokenType.BoolType,
             TokenType.FloatType,

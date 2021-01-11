@@ -54,7 +54,6 @@ namespace Boink.Analysis.Tokenization
         static Dictionary<string, TokenType> Keywords = new Dictionary<string, TokenType> 
         {
             { "fn", TokenType.FunctionDefinition },
-            { "dyn", TokenType.DynamicType },
             { "int", TokenType.IntType },
             { "false", TokenType.BoolLiteral },
             { "true", TokenType.BoolLiteral },
