@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-
+using System.Reflection;
 using Boink.Analysis.Semantic.Symbols;
 using Boink.AST;
 using Boink.AST.Nodes;
@@ -164,7 +164,7 @@ namespace Boink.Analysis.Semantic
             // Check if the function either doesn't give or has a give type.
             if (giveType == null || hasGive)
                 return null;
-            
+
 
             // If the function has a give type but it doesn't give, throw a Boink error.
             ErrorHandler.Throw(new NoGiveError($"Function {node.Name.Val} doesn't give any value even though it has a give type of {giveType}",
@@ -184,7 +184,7 @@ namespace Boink.Analysis.Semantic
             Visit(node.Left);
             Visit(node.Right);
 
-            if(node.Type == null)
+            if (node.Type == null)
             {
                 ErrorHandler.Throw(new UnsupportedOperationError($"Binary operation not supported",
                                                                  node.Pos, FilePath));
@@ -206,7 +206,7 @@ namespace Boink.Analysis.Semantic
 
             // If there isn't any parent scope, lookup from the current scope.
             // Otherwise lookup from the parent scope.
-            if(node.ParentScope != null)
+            if (node.ParentScope != null)
                 symbol = node.ParentScope.Lookup(node.Name);
             else
                 symbol = CurrentScope.Lookup(node.Name);
@@ -228,6 +228,36 @@ namespace Boink.Analysis.Semantic
                     else if (symbolType == typeof(LibrarySymbol))
                         parentScope = ((LibrarySymbol)symbol).Importables;
 
+                    else if (symbolType == typeof(VarSymbol))
+                    {
+                        var scope = new SymbolTable(node.Name, null, null);
+
+                        // FieldInfo fieldInfo = node.VarType.GetField("Methods");
+                        object methodsObj = node.VarType.GetField("Methods").GetValue(null);
+                        Dictionary<string, MethodInfo> methodsDictionary = (Dictionary<string, MethodInfo>)methodsObj;
+
+                        foreach (var kv in methodsDictionary)
+                        {
+                            var methodName = kv.Key;
+                            var methodInfo = kv.Value;
+                            var args = methodInfo.GetParameters();
+                            List<Type> argTypes = new List<Type>();
+
+                            // i is 1 because the first real parameter
+                            // is an object reference since the actual
+                            // method is static.
+                            // Boink should ignore the first parameter
+                            // while creating a function symbol.
+                            for (int i = 1; i < args.Length; i++)
+                            {
+                                argTypes.Add(args[i].ParameterType);
+                            }
+
+                            scope.Add(methodName, new FunctionSymbol(argTypes, methodName, methodInfo.ReturnType));
+                        }
+                        parentScope = scope;
+                    }
+
                     SetChildsParentScope(node, parentScope);
 
                     Visit(node.ChildReference);
@@ -236,7 +266,7 @@ namespace Boink.Analysis.Semantic
                 return null;
             }
 
-            if(ProgramLibraryManager.HasStandardLibrary(node.Name))
+            if (ProgramLibraryManager.HasStandardLibrary(node.Name))
             {
                 var parentScope = ProgramLibraryManager.GetLibrarySymbolTable(node.Name);
                 SetChildsParentScope(node, parentScope);
@@ -389,7 +419,7 @@ namespace Boink.Analysis.Semantic
 
             // If there isn't any parent scope, lookup from the current scope.
             // Otherwise lookup from the parent scope.
-            if(node.Var.ParentScope != null)
+            if (node.Var.ParentScope != null)
                 symbol = node.Var.ParentScope.Lookup(node.Var.Name);
             else
                 symbol = CurrentScope.Lookup(node.Var.Name);
@@ -434,7 +464,7 @@ namespace Boink.Analysis.Semantic
                     {
                         var callArgType = argTypes[i];
                         var actualArgType = functionSymbol.ArgTypes[i];
-                        
+
                         if (callArgType != actualArgType)
                         {
                             // Throw a Boink error if types don't match.
@@ -449,7 +479,7 @@ namespace Boink.Analysis.Semantic
 
                 return null;
             }
-            
+
             // Throw a Boink error if the function has not been defined before.
             ErrorHandler.Throw(new UndefinedSymbolError($"Function '{node.Var.Name}' is not defined",
                                                         node.Pos, FilePath));
@@ -488,7 +518,7 @@ namespace Boink.Analysis.Semantic
                     // syntax is correct.
                     if (giveType == exprType)
                         return null;
-                    
+
                     // Throw a Boink error if the types don't match.
                     ErrorHandler.Throw(new IncompatibleTypesError($"Type {exprType} and {giveType} are not compatible for giving",
                                                                   node.Pos, FilePath));
@@ -542,16 +572,16 @@ namespace Boink.Analysis.Semantic
         {
             // Check for the importables in the directory.
             // (user-created files)
-            if(DirCache.HasLibraryOrPackage(node.Package.Hierarchy))
+            if (DirCache.HasLibraryOrPackage(node.Package.Hierarchy))
             {
                 var symbol = DirCache.GetLibraryOrPackageSymbol(node.Package.Hierarchy);
                 AddLog($"IMPORT: '{node.Package.HierarchyString}' imported.");
-                if(symbol.IsLibrary)
+                if (symbol.IsLibrary)
                 {
                     CurrentScope.Define((LibrarySymbol)symbol);
                     return null;
                 }
-                else if(symbol.IsPackage)
+                else if (symbol.IsPackage)
                 {
                     CurrentScope.Define((PackageSymbol)symbol);
                     return null;
@@ -564,7 +594,7 @@ namespace Boink.Analysis.Semantic
                 ProgramLibraryManager.LoadStandardLibrary(node.Package.Root);
                 return null;
             }
-            
+
             // Throw a Boink error if no library could be found.
             ErrorHandler.Throw(new UnknownLibraryError($"Library '{node.Package.HierarchyString}' not found",
                                                        node.ImportToken.Pos, FilePath));
@@ -582,7 +612,7 @@ namespace Boink.Analysis.Semantic
             // Visit the expression.
             Visit(node.Expr);
 
-            if(node.Type == null)
+            if (node.Type == null)
             {
                 ErrorHandler.Throw(new UnsupportedOperationError($"Type {node.Expr.Type.Name} doesn't support {OperationTypes.GetUnaryOperationByTokenType(node.Operator.Type)}",
                                                                  node.Pos, FilePath));

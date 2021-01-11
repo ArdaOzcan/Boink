@@ -1,7 +1,20 @@
+using System.Collections.Generic;
+using System.Reflection;
+
 namespace Boink.Types
 {
     public sealed class StringType : ObjectType
     {
+        public static Dictionary<string, MethodInfo> Methods = new Dictionary<string, MethodInfo>
+        {
+            {"subString", typeof(StringType).GetMethod("SubString")}
+        };
+
+        public static StringType SubString(object o, IntType start, IntType end)
+        {
+            return new StringType(null, ((string)((StringType)o).Val).Substring((int)start.Val, (int)end.Val));
+        }
+
         public StringType(string name, object val) : base(name, val)
         {
 

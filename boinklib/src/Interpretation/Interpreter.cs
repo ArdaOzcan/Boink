@@ -232,20 +232,20 @@ namespace Boink.Interpretation
         {
             string varName = node.Name;
 
-            ObjectType var;
+            ObjectType variable;
 
             if(node.ParentRecord == null)
-                var = ProgramCallStack.Peek.GetVar(varName);
+                variable = ProgramCallStack.Peek.GetVar(varName);
             else
-                var = node.ParentRecord.GetVar(varName);
+                variable = node.ParentRecord.GetVar(varName);
 
             if(node.ChildReference != null)
             {
-                Type type = var.GetType();
+                Type type = variable.GetType();
                 if (type == typeof(PackageType) || type == typeof(LibraryType))
                 {
                     Type childType = node.ChildReference.GetType();
-                    ActivationRecord record = (ActivationRecord)var.Val;
+                    ActivationRecord record = (ActivationRecord)variable.Val;
 
                     if (childType == typeof(VariableSyntax))
                         ((VariableSyntax)node.ChildReference).ParentRecord = record;
@@ -253,12 +253,31 @@ namespace Boink.Interpretation
                     else if(childType == typeof(FunctionCallSyntax))
                         ((FunctionCallSyntax)node.ChildReference).Var.ParentRecord = record;
                     
+                    variable = (ObjectType)Visit(node.ChildReference);
                 }
+                else
+                {
+                    var childReference = ((FunctionCallSyntax)node.ChildReference);
+                    var functionName = childReference.Var.Name;
 
-                var = (ObjectType)Visit(node.ChildReference);
+                    var args = new object[childReference.Args.Count + 1];
+
+                    // First argument is an object reference
+                    // because the real methods have to be static
+                    args[0] = variable;
+
+                    // Offsetted arguments
+                    for (int i = 1; i < args.Length; i++)
+                    {
+                        args[i] = Visit(childReference.Args[i - 1]);
+                    }
+
+                    var methodsDictionary = (Dictionary<string, MethodInfo>)type.GetField("Methods").GetValue(null);
+                    variable = (ObjectType)methodsDictionary[functionName].Invoke(null, args);
+                }
             }
 
-            return var;
+            return variable;
         }
 
         /// <summary>
