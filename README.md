@@ -11,7 +11,7 @@ Aim of Boink is to create a language that is both type safe and easy to write. A
 ## Information
 
 ### Framework & Language
-- Boink is written with **.NET Core** and **C#**. This means Boink is cross-platform since .NET Core is also cross-platform.
+- Boink is written with **.NET Core** and **C#**.
 
 - Boink also contains little **Python 3** scripts for automation of small things while development, these python scripts are not included in Boink binaries.
 ## Contributing
