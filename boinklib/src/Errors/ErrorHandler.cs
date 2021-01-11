@@ -18,10 +18,13 @@ namespace Boink.Errors
         /// <summary>Log all errors in the list with a header.</summary>
         public void WriteAll()
         {
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("ERRORS: ");
 
             foreach (string err in Logs)
                 Console.WriteLine(err);
+
+            Console.ResetColor();
         }
 
         public void AddLog(string s) => Logs.Add(s);
