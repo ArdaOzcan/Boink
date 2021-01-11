@@ -9,13 +9,13 @@ Boink is an imperative and interpreted language written in C# for educational pu
 Aim of Boink is to create a language that is both type safe and easy to write. And also to learn how components of an interpreted language works.
 
 ## Information
----
+
 ### Framework & Language
 - Boink is written with **.NET Core** and **C#**. This means Boink is cross-platform since .NET Core is also cross-platform.
 
 - Boink also contains little **Python 3** scripts for automation of small things while development, these python scripts are not included in Boink binaries.
 ## Contributing
----
+
 You can contribute by opening issues, participating to them or modifying the source code to improve Boink.
 ### Downloading the Source
 #### 1. With git
@@ -53,21 +53,21 @@ Alternatively, you can set up a workspace by adding different source folders you
 You can open the Boink.sln file in Visual Studio but a tutorial is not included here. _You might have to install .NET support to Visual Studio._
 ### Developing, Building & Testing
 #### Changing or Adding to the Source Code
----
+
 You can change the source code to improve Boink but you have to follow the guidelines.
 
 - Follow the [dofactory style guide](https://www.dofactory.com/reference/csharp-coding-standards).
 
 - You should modify or add XML comments to classes, methods, fields and properties. You can use the **C# XML Documentation Comments (k--kato.docomment)** extension if you use vscode.
 #### Building
----
+
 Go to the directory where .csproj file exists to build a single project, go to the root folder where the .sln file exists to build all of the projects and run `dotnet build`
 #### Unit Testing
----
+
 Go to `Boink/src/boinktest` and run `dotnet test` to see the results of the tests and debug accordingly.
 
 ## Features & Programming Approach of Boink
----
+
 ### Control Flow
 #### Without Functions
 A Boink program starts interpreting from the first line of the given file. It doesn't require any main function or a class to start executing. This means you can write a Boink program without any functions (Ignoring the fact that the program itself is a function).
