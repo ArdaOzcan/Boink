@@ -73,9 +73,6 @@ namespace Boink.UnitTesting
         public void SemicolonTokenTest() => TokenTest(";", TokenType.Semicolon);
 
         [TestMethod]
-        public void DynTokenTest() => TokenTest("dyn", TokenType.DynamicType);
-
-        [TestMethod]
         public void IntTokenTest() => TokenTest("int", TokenType.IntType);
 
         [TestMethod]
