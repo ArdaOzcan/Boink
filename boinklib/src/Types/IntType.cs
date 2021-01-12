@@ -1,10 +1,22 @@
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Boink.Types
 {
 
     public sealed class IntType : ObjectType
     {
+        public static Dictionary<string, MethodInfo> Methods = new Dictionary<string, MethodInfo>
+        {
+            {"toString", typeof(IntType).GetMethod("IntToString")}
+        };
+
+        public static StringType IntToString(object o)
+        {
+            return new StringType(null, ((int)((IntType)o).Val).ToString());
+        }
+
         public IntType(string name, object val) : base(name, val)
         {
 
