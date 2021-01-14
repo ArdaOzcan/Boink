@@ -5,6 +5,7 @@ using Boink.Analysis.Semantic;
 using Boink.Analysis.Tokenization;
 
 using Boink.Interpretation;
+using Boink.Types;
 
 namespace Boink.AST.Nodes
 {
@@ -27,14 +28,14 @@ namespace Boink.AST.Nodes
         /// Type of the variable, set later in semantic analysis 
         /// after visitation. Initial value is null.
         /// </summary>
-        public Type VarType { get; set; }
+        public BoinkType VarType { get; set; }
 
-        public override Type Type 
+        public override BoinkType ChildOrOwnType 
         {
             get
             {
                 if(ChildReference != null)
-                    return ChildReference.Type;
+                    return ChildReference.ChildOrOwnType;
 
                 return VarType;
             }

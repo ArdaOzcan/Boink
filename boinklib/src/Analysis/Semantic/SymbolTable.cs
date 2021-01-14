@@ -18,7 +18,7 @@ namespace Boink.Analysis.Semantic
         /// <summary>
         /// Owner function symbol of this symbol table is there is any.
         /// </summary>
-        public FunctionSymbol Owner { get; private set; }
+        public Symbol Owner { get; set; }
 
         /// <summary>
         /// Parent symbol table of this symbol table.
@@ -31,7 +31,7 @@ namespace Boink.Analysis.Semantic
         /// <param name="scopeName">Name of the scope</param>
         /// <param name="owner">Owner of this symbol table, a function symbol. Defaults to null.</param>
         /// <param name="parentScope">Parent SymbolTable to check outer scopes. Defaults to null.</param>
-        public SymbolTable(string scopeName, FunctionSymbol owner = null, SymbolTable parentScope = null) : base()
+        public SymbolTable(string scopeName, Symbol owner = null, SymbolTable parentScope = null) : base()
         {
             ScopeName = scopeName;
             Owner = owner;

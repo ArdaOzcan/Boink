@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Boink.Types;
 
 namespace Boink.AST.Nodes
 {
@@ -27,7 +28,7 @@ namespace Boink.AST.Nodes
         /// -> BinaryOperationSyntax: int / int, Type == float
         /// </para>
         /// </summary>
-        public virtual Type Type => null;
+        public virtual BoinkType ChildOrOwnType => null;
 
         /// <summary>
         /// Dictionary representation of this syntax node as a Dictionary.

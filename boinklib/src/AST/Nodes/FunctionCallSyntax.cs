@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Boink.Types;
 
 namespace Boink.AST.Nodes
 {
@@ -14,16 +15,16 @@ namespace Boink.AST.Nodes
 
         public List<SyntaxNode> Args { get; private set; }
         
-        public Type VarType { get; set; }
+        public BoinkType VarType { get; set; }
 
         public override int Pos => Var.VarToken.Pos;
 
-        public override Type Type
+        public override BoinkType ChildOrOwnType
         {
             get
             {
                 if(ChildReference != null)
-                    return ChildReference.Type;
+                    return ChildReference.ChildOrOwnType;
 
                 return VarType;
             }

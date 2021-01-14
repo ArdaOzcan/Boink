@@ -1,4 +1,5 @@
 using System;
+using Boink.Types;
 
 namespace Boink.Analysis.Semantic.Symbols
 {
@@ -7,7 +8,7 @@ namespace Boink.Analysis.Semantic.Symbols
     /// </summary>
     public class VarSymbol : Symbol
     {
-        public VarSymbol(Type varType, string name) : base(varType, name)
+        public VarSymbol(BoinkType varType, string name) : base(varType, name)
         {
 
         }

@@ -13,12 +13,12 @@ namespace Boink.Analysis.Semantic.Symbols
         /// <summary>
         /// List of the types of arguments.
         /// </summary>
-        public List<Type> ArgTypes { get; private set; }
+        public List<BoinkType> ArgTypes { get; private set; }
 
         /// <summary>
         /// Type of the give expression if any.
         /// </summary>
-        public Type GiveType { get; private set; }
+        public BoinkType GiveType { get; set; }
 
         /// <summary>
         /// Construct a FunctionSymbol object.
@@ -26,7 +26,7 @@ namespace Boink.Analysis.Semantic.Symbols
         /// <param name="argTypes">List of argument types for semantic analysis.</param>
         /// <param name="name">Name of the variable.</param>
         /// <param name="giveType">Given type from the function.</param>
-        public FunctionSymbol(List<Type> argTypes, string name, Type giveType) : base(typeof(FunctionType), name)
+        public FunctionSymbol(List<BoinkType> argTypes, string name, BoinkType giveType) : base(new BoinkType(typeof(FunctionType)), name)
         {
             ArgTypes = argTypes;
             GiveType = giveType;

@@ -72,7 +72,9 @@ namespace Boink.Analysis.Tokenization
         /// <summary> . </summary>
         Dot,
         /// <summary> double </summary>
-        DoubleType
+        DoubleType,
+        /// <summary> type </summary>
+        TypeDefinition
     }
 
 }

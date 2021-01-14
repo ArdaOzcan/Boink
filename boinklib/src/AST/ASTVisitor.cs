@@ -58,5 +58,7 @@ namespace Boink.AST
         public abstract object Visit(StringLiteralSyntax node);
 
         public abstract object Visit(ImportSyntax node);
+
+        public abstract object Visit(TypeDefinitionSyntax node);
     }
 }

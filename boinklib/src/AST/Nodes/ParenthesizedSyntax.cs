@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Boink.Types;
 
 namespace Boink.AST.Nodes
 {
@@ -14,14 +15,14 @@ namespace Boink.AST.Nodes
 
         public override int Pos => Expr.Pos - 1;
 
-        public override Type Type 
+        public override BoinkType ChildOrOwnType 
         {
             get
             {
                 if(ChildReference != null)
-                    return ChildReference.Type;
+                    return ChildReference.ChildOrOwnType;
                     
-                return Expr.Type;
+                return Expr.ChildOrOwnType;
             }
         }
 

@@ -1,9 +1,21 @@
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Boink.Types
 {
     public sealed class DoubleType : ObjectType
     {
+        public static Dictionary<string, MethodInfo> Methods = new Dictionary<string, MethodInfo>
+        {
+            {"toString", typeof(DoubleType).GetMethod("DoubleToString")}
+        };
+
+        public static StringType DoubleToString(object o)
+        {
+            return new StringType(null, ((double)((IntType)o).Val).ToString());
+        }
+
         public DoubleType(string name, object val) : base(name, val) { }
 
         public override object add(ObjectType other)

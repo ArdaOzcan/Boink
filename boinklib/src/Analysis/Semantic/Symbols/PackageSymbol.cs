@@ -13,9 +13,9 @@ namespace Boink.Analysis.Semantic.Symbols
     /// /// </summary>
     public class PackageSymbol : Symbol, IImportableSymbol
     {
-        public bool IsPackage { get { return true; } }
+        public bool IsPackage { get => true; }
         
-        public bool IsLibrary { get { return false; } }
+        public bool IsLibrary { get => false; }
 
         /// <summary>
         /// Root syntax node of a package.
@@ -32,7 +32,7 @@ namespace Boink.Analysis.Semantic.Symbols
         /// </summary>
         /// <param name="name">Name of the package.</param>
         /// <param name="root">Root syntax node of the package.</param>
-        public PackageSymbol(string name, ProgramSyntax root) : base(typeof(PackageType), name)
+        public PackageSymbol(string name, ProgramSyntax root) : base(new BoinkType(typeof(PackageType)), name)
         {
             Root = root;
         }
