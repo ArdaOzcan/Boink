@@ -18,14 +18,14 @@ namespace Boink.AST.Nodes
 
         public override int Pos => LiteralToken.Pos;
 
-        public override Type Type 
+        public override BoinkType ChildOrOwnType 
         {
             get
             {
                 if(ChildReference != null)
-                    return ChildReference.Type;
+                    return ChildReference.ChildOrOwnType;
                     
-                return typeof(StringType);
+                return new BoinkType(typeof(StringType));
             }
         }
 

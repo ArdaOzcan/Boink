@@ -24,7 +24,13 @@ namespace Boink.Types
         ///<summary>Return corresponding type class with a given token type.</summary>
         ///<param name="tokenType">Given token type.</param>
         ///<returns>Corresponding type class.</returns>
-        public static Type GetTypeByTokenType(TokenType tokenType) => TypeDictionary[tokenType];
+        public static Type GetTypeByTokenType(TokenType tokenType) 
+        {
+            Type val;
+            TypeDictionary.TryGetValue(tokenType, out val);
+
+            return val;
+        }
 
         public override string ToString() => $"{Val}";
 

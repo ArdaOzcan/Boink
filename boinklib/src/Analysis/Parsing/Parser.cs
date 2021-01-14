@@ -34,6 +34,8 @@ namespace Boink.Analysis.Parsing
             TokenType.DoubleType
         };
 
+        static HashSet<string> UserDefinedTypeNames = new HashSet<string>();
+
         /// <summary>
         /// Token types that are for binary operations.
         /// - +
@@ -579,7 +581,8 @@ namespace Boink.Analysis.Parsing
             Token token = null;
 
             // Check if the current token is a type token.
-            if (TypeTokens.Contains(CurrentToken.Type))
+            if (TypeTokens.Contains(CurrentToken.Type)
+                || (CurrentToken.Type == TokenType.Word && UserDefinedTypeNames.Contains((string)CurrentToken.Val)))
             {
                 token = CurrentToken;
                 Consume(CurrentToken.Type);
@@ -649,7 +652,7 @@ namespace Boink.Analysis.Parsing
         /// <returns>SyntaxNode representation of the statement.</returns>
         public SyntaxNode ParseStatement()
         {
-            if (TypeTokens.Contains(CurrentToken.Type))
+            if (TypeTokens.Contains(CurrentToken.Type) || (CurrentToken.Val != null && UserDefinedTypeNames.Contains(CurrentToken.Val.ToString())))
                 // Is a type name, so a declaration.
                 return ParseDeclaration();
 
@@ -682,6 +685,10 @@ namespace Boink.Analysis.Parsing
                 // Is a function declaration.
                 return ParseFunction();
 
+            if (CurrentToken.Type == TokenType.TypeDefinition)
+                // Is a type definition.
+                return ParseTypeDefinition();
+
             if (CurrentToken.Type == TokenType.Give)
                 // Is a give statement.
                 return ParseGive();
@@ -695,6 +702,35 @@ namespace Boink.Analysis.Parsing
                 return ParseImport();
 
             return null;
+        }
+
+        private SyntaxNode ParseTypeDefinition()
+        {
+            var typeKeywordToken = CurrentToken;
+
+            Consume(TokenType.TypeDefinition);
+
+            var typeNameToken = CurrentToken;
+
+            Consume(TokenType.Word);
+            ConsumeAll(TokenType.NewLine);
+
+            var statements = ParseStatements();
+
+            Consume(TokenType.Semicolon);
+
+            var typeDefinitionSyntax = new TypeDefinitionSyntax(typeNameToken);
+
+
+            foreach (var statement in statements)
+            {
+                typeDefinitionSyntax.Statements.Add(statement);
+            }
+
+            // TypeTokens.Add(typeDefinitionSyntax.Name);
+            UserDefinedTypeNames.Add((string)typeNameToken.Val);
+
+            return typeDefinitionSyntax;
         }
 
         /// <summary>
@@ -717,12 +753,12 @@ namespace Boink.Analysis.Parsing
         private PackageSyntax ParsePackage()
         {
             var hierarchy = new List<string>();
-            while(CurrentToken.Type == TokenType.Word)
+            while (CurrentToken.Type == TokenType.Word)
             {
                 hierarchy.Add((string)CurrentToken.Val);
                 Consume(TokenType.Word);
 
-                if(CurrentToken.Type != TokenType.Dot)
+                if (CurrentToken.Type != TokenType.Dot)
                     break;
 
                 Consume(TokenType.Dot);
@@ -740,7 +776,7 @@ namespace Boink.Analysis.Parsing
             List<SyntaxNode> statements = new List<SyntaxNode>();
             SyntaxNode statement = ParseStatement();
 
-            if (statement == null) 
+            if (statement == null)
                 return statements;
 
             ConsumeAll(TokenType.NewLine);
@@ -750,7 +786,7 @@ namespace Boink.Analysis.Parsing
                 statements.Add(statement);
                 statement = ParseStatement();
 
-                if (statement == null) 
+                if (statement == null)
                     break;
 
                 ConsumeAll(TokenType.NewLine);

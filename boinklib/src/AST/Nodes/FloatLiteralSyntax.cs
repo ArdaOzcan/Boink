@@ -19,7 +19,7 @@ namespace Boink.AST.Nodes
 
         public override int Pos => LiteralToken.Pos;
 
-        public override Type Type => typeof(FloatType);
+        public override BoinkType ChildOrOwnType => new BoinkType(typeof(FloatType));
 
         public override Dictionary<string, object> JsonDict
         {

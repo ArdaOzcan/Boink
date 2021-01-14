@@ -1,4 +1,5 @@
 using System;
+using Boink.Types;
 
 namespace Boink.Analysis.Semantic.Symbols
 {
@@ -10,7 +11,7 @@ namespace Boink.Analysis.Semantic.Symbols
         /// <summary>
         /// Type of the variable.
         /// </summary>
-        public Type VarType { get; private set; }
+        public BoinkType VarType { get; protected set; }
 
         /// <summary>
         /// Name of the variable.
@@ -22,7 +23,7 @@ namespace Boink.Analysis.Semantic.Symbols
         /// </summary>
         /// <param name="varType">Type of the variable.</param>
         /// <param name="name">Name of the variable.</param>
-        public Symbol(Type varType, string name)
+        public Symbol(BoinkType varType, string name)
         {
             VarType = varType;
             Name = name;

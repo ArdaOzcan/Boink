@@ -45,12 +45,12 @@ namespace Boink.Interpretation.Library
             {
                 var returnType =  method.ReturnType;
                 var parameterInfos = method.GetParameters();
-                var argTypes = new List<Type>();
+                var argTypes = new List<BoinkType>();
 
                 foreach(var info in parameterInfos)
-                    argTypes.Add(info.ParameterType);
+                    argTypes.Add(new BoinkType(info.ParameterType));
 
-                symbolTable.Define(new FunctionSymbol(argTypes, method.Name, returnType));     
+                symbolTable.Define(new FunctionSymbol(argTypes, method.Name, new BoinkType(returnType)));     
             }
 
             LoadedLibraries.Add(type, symbolTable);

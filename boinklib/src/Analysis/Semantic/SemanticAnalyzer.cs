@@ -97,6 +97,112 @@ namespace Boink.Analysis.Semantic
             return null;
         }
 
+        public override object Visit(TypeDefinitionSyntax node)
+        {
+            var oldScope = CurrentScope;
+            var scope = new SymbolTable((string)node.Name.Val, null, CurrentScope);
+
+            string typeName = (string)node.Name.Val;
+            var symbol = new ClassSymbol(typeName);
+
+            CurrentScope.Define(symbol);
+
+            CurrentScope = scope;
+
+            foreach (var statement in node.Statements)
+            {
+                if (statement.GetType() == typeof(FunctionSyntax))
+                {
+                    var funcNode = (FunctionSyntax)statement;
+                    string functionName = (string)funcNode.Name.Val;
+                    if (CurrentScope.Lookup(functionName) != null)
+                    {
+                        // If the function already exists, throw a Boink error.
+                        ErrorHandler.Throw(new MultipleDefinitionError($"Function {funcNode.Name.Val} is already defined",
+                                                                       funcNode.Pos, FilePath));
+                        continue;
+                    }
+
+                    var argTypes = new List<BoinkType>();
+                    foreach (var a in funcNode.Args)
+                        argTypes.Add(a.ChildOrOwnType);
+
+                    // Determine the give type as an obj_ type.
+                    BoinkType giveType = new BoinkType();
+                    if (funcNode.GiveTypeSyntax != null)
+                    {
+                        var tokenType = funcNode.GiveTypeSyntax.TypeToken.Type;
+                        giveType = new BoinkType(ObjectType.GetTypeByTokenType(tokenType));
+                    }
+
+                    var ctor = false;
+
+                    if (functionName == "construct")
+                    {
+                        giveType = new BoinkType(BoinkType.userTypes[typeName]);
+                        ctor = true;
+                    }
+
+                    // Create a symbol for the function.
+                    var funcSymbol = new FunctionSymbol(argTypes, functionName, giveType);
+
+                    CurrentScope.Define(funcSymbol);
+                    BoinkType.userTypes[typeName].Methods.Add(funcSymbol);
+
+                    if (ctor)
+                        symbol.Constructor = funcSymbol;
+                }
+                else if (statement.GetType() == typeof(DeclarationSyntax))
+                {
+                    var declNode = (DeclarationSyntax)statement;
+
+                    string name = (string)declNode.VarType.TypeToken.Val;
+                    var userDefinedType = CurrentScope.Lookup(name);
+                    var builtinType = ObjectType.GetTypeByTokenType(declNode.VarType.TypeToken.Type);
+
+                    BoinkType varType = null;
+                    if (builtinType != null)
+                        varType = new BoinkType(builtinType);
+
+
+                    if (varType == null && userDefinedType.GetType() == typeof(ClassSymbol))
+                    {
+                        varType = new BoinkType(BoinkType.userTypes[userDefinedType.Name]);
+                        declNode.UserDefinedType = varType;
+                    }
+
+
+                    // Lookup for the variable in the current scope.
+                    var varSymbol = CurrentScope.LookupOnlyCurrentScope(declNode.Name);
+
+                    // Check if the variable is defined.
+                    if (varSymbol == null)
+                    {
+                        // Variable has not been defined before.
+                        // Create a a symbol for the variable.
+
+                        var sym = new VarSymbol(varType, declNode.Name);
+                        CurrentScope.Define(sym);
+                        BoinkType.userTypes[typeName].Fields.Add(sym);
+                    }
+                    else
+                    {
+                        // ERROR
+                        Console.WriteLine("Error");
+                    }
+
+                }
+
+                symbol.SymbolTable = CurrentScope;
+            }
+
+            scope.Owner = symbol;
+
+            CurrentScope = oldScope;
+
+            return null;
+        }
+
         /// <summary>
         /// Check for previous definitions of the function, define the function,
         /// determine argument types and visit statements.
@@ -116,17 +222,21 @@ namespace Boink.Analysis.Semantic
             }
 
             // Determine argument types.
-            var argTypes = new List<Type>();
+            var argTypes = new List<BoinkType>();
             foreach (var a in node.Args)
-                argTypes.Add(a.Type);
+                argTypes.Add(a.ChildOrOwnType);
 
             // Determine the give type as an obj_ type.
-            Type giveType = null;
+            BoinkType giveType = new BoinkType();
             if (node.GiveTypeSyntax != null)
             {
                 var tokenType = node.GiveTypeSyntax.TypeToken.Type;
-                giveType = ObjectType.GetTypeByTokenType(tokenType);
+                giveType = new BoinkType(ObjectType.GetTypeByTokenType(tokenType));
             }
+
+            if (CurrentScope.Owner != null && CurrentScope.Owner.GetType() == typeof(ClassSymbol)
+            && (string)node.Name.Val == "constructor")
+                giveType = CurrentScope.Owner.VarType;
 
             // Create a symbol for the function.
             var symbol = new FunctionSymbol(argTypes, (string)node.Name.Val, giveType);
@@ -184,7 +294,7 @@ namespace Boink.Analysis.Semantic
             Visit(node.Left);
             Visit(node.Right);
 
-            if (node.Type == null)
+            if (node.ChildOrOwnType == null)
             {
                 ErrorHandler.Throw(new UnsupportedOperationError($"Binary operation not supported",
                                                                  node.Pos, FilePath));
@@ -228,32 +338,59 @@ namespace Boink.Analysis.Semantic
                     else if (symbolType == typeof(LibrarySymbol))
                         parentScope = ((LibrarySymbol)symbol).Importables;
 
-                    else if (symbolType == typeof(VarSymbol))
+                    else if (symbolType == typeof(VarSymbol) || symbolType == typeof(ClassSymbol))
                     {
                         var scope = new SymbolTable(node.Name, null, null);
 
                         // FieldInfo fieldInfo = node.VarType.GetField("Methods");
-                        object methodsObj = node.VarType.GetField("Methods").GetValue(null);
-                        Dictionary<string, MethodInfo> methodsDictionary = (Dictionary<string, MethodInfo>)methodsObj;
-
-                        foreach (var kv in methodsDictionary)
+                        if (node.VarType.IsBuiltin)
                         {
-                            var methodName = kv.Key;
-                            var methodInfo = kv.Value;
-                            var args = methodInfo.GetParameters();
-                            List<Type> argTypes = new List<Type>();
-
-                            // i is 1 because the first real parameter
-                            // is an object reference since the actual
-                            // method is static.
-                            // Boink should ignore the first parameter
-                            // while creating a function symbol.
-                            for (int i = 1; i < args.Length; i++)
+                            FieldInfo fieldInfo = node.VarType.CSType.GetField("Methods");
+                            if (fieldInfo != null)
                             {
-                                argTypes.Add(args[i].ParameterType);
+                                object methodsObj = fieldInfo.GetValue(null);
+
+                                Dictionary<string, MethodInfo> methodsDictionary = (Dictionary<string, MethodInfo>)methodsObj;
+
+                                foreach (var kv in methodsDictionary)
+                                {
+                                    var methodName = kv.Key;
+                                    var methodInfo = kv.Value;
+                                    if (methodInfo == null)
+                                        break;
+                                        
+                                    var args = methodInfo.GetParameters();
+                                    List<BoinkType> argTypes = new List<BoinkType>();
+
+                                    // i is 1 because the first real parameter
+                                    // is an object reference since the actual
+                                    // method is static.
+                                    // Boink should ignore the first parameter
+                                    // while creating a function symbol.
+                                    for (int i = 1; i < args.Length; i++)
+                                    {
+                                        argTypes.Add(new BoinkType(args[i].ParameterType));
+                                    }
+
+                                    scope.Add(methodName, new FunctionSymbol(argTypes, methodName, new BoinkType(methodInfo.ReturnType)));
+                                }
+                            }
+                            parentScope = scope;
+
+                        }
+                        else if (node.VarType.IsUserDefined)
+                        {
+                            var classInfo = BoinkType.userTypes[node.VarType.Name];
+
+                            foreach (var method in classInfo.Methods)
+                            {
+                                scope.Add(method.Name, method);
                             }
 
-                            scope.Add(methodName, new FunctionSymbol(argTypes, methodName, methodInfo.ReturnType));
+                            foreach (var field in classInfo.Fields)
+                            {
+                                scope.Add(field.Name, field);
+                            }
                         }
                         parentScope = scope;
                     }
@@ -313,7 +450,21 @@ namespace Boink.Analysis.Semantic
         public override object Visit(DeclarationSyntax node)
         {
             // Get the type of the type token.
-            var varType = ObjectType.GetTypeByTokenType(node.VarType.TypeToken.Type);
+            string name = (string)node.VarType.TypeToken.Val;
+            var userDefinedType = CurrentScope.Lookup(name);
+            var builtinType = ObjectType.GetTypeByTokenType(node.VarType.TypeToken.Type);
+
+            BoinkType varType = null;
+            if (builtinType != null)
+                varType = new BoinkType(builtinType);
+
+
+            if (varType == null && userDefinedType.GetType() == typeof(ClassSymbol))
+            {
+                varType = new BoinkType(BoinkType.userTypes[userDefinedType.Name]);
+                node.UserDefinedType = varType;
+            }
+
 
             // Lookup for the variable in the current scope.
             var varSymbol = CurrentScope.LookupOnlyCurrentScope(node.Name);
@@ -341,16 +492,16 @@ namespace Boink.Analysis.Semantic
                     Visit(node.Expr);
 
                     // Check if types match.
-                    if (node.Expr.Type != varType)
+                    if (node.Expr.ChildOrOwnType!= null && !node.Expr.ChildOrOwnType.IsEqual(varType))
                     {
                         // There is a type mismatch, throw a Boink error.
-                        ErrorHandler.Throw(new IncompatibleTypesError($"Type {node.Expr.Type} and {varType} are not compatible for assignment",
+                        ErrorHandler.Throw(new IncompatibleTypesError($"Type {node.Expr.ChildOrOwnType} and {varType} are not compatible for assignment",
                                                                       node.Pos, FilePath));
                         return null;
                     }
 
                     // Add log.
-                    AddLog($"ASSIGNMENT: Assigned {node.Expr.Type} to {varType}.");
+                    AddLog($"ASSIGNMENT: Assigned {node.Expr.ChildOrOwnType} to {varType}.");
                 }
 
                 return null;
@@ -383,17 +534,17 @@ namespace Boink.Analysis.Semantic
                 // Variable is defined.
 
                 // Check if the types match.
-                if (node.Expr.Type == symbol.VarType)
+                if (node.Expr.ChildOrOwnType.IsEqual(symbol.VarType))
                 {
                     // Types match.
 
                     // Add log.
-                    AddLog($"ASSIGNMENT: Assigned {node.Expr.Type} to {symbol.VarType}.");
+                    AddLog($"ASSIGNMENT: Assigned {node.Expr.ChildOrOwnType} to {symbol.VarType}.");
                     return null;
                 }
 
                 // Throw a Boink error if types don't match.
-                ErrorHandler.Throw(new IncompatibleTypesError($"Type {node.Expr.Type} and {symbol.VarType} are not compatible for assignment",
+                ErrorHandler.Throw(new IncompatibleTypesError($"Type {node.Expr.ChildOrOwnType} and {symbol.VarType} are not compatible for assignment",
                                                               node.Pos, FilePath));
                 return null;
             }
@@ -435,11 +586,11 @@ namespace Boink.Analysis.Semantic
 
                 // Visit every argument passed in and
                 // determine argument types of them.
-                var argTypes = new List<Type>();
+                var argTypes = new List<BoinkType>();
                 foreach (var callArg in node.Args)
                 {
                     Visit(callArg);
-                    argTypes.Add(callArg.Type);
+                    argTypes.Add(callArg.ChildOrOwnType);
                 }
 
                 // Check for amount of arguments.
@@ -465,7 +616,7 @@ namespace Boink.Analysis.Semantic
                         var callArgType = argTypes[i];
                         var actualArgType = functionSymbol.ArgTypes[i];
 
-                        if (callArgType != actualArgType)
+                        if (callArgType != null && !callArgType.IsEqual(actualArgType))
                         {
                             // Throw a Boink error if types don't match.
                             ErrorHandler.Throw(new IncompatibleTypesError($"Type {callArgType} and {actualArgType} are not compatible for assignment",
@@ -494,12 +645,12 @@ namespace Boink.Analysis.Semantic
         public override object Visit(GiveSyntax node)
         {
             // Determine the expression type.
-            Type exprType = null;
+            BoinkType exprType = null;
             if (node.Expr != null)
             {
                 // Visit the expression syntax.
                 Visit(node.Expr);
-                exprType = node.Expr.Type;
+                exprType = node.Expr.ChildOrOwnType;
             }
 
             // Set the currentFunctionSymbol to the function that this syntax gives from.
@@ -509,14 +660,14 @@ namespace Boink.Analysis.Semantic
             if (currentFunctionSymbol != null)
             {
                 // Give type of the function.
-                var giveType = currentFunctionSymbol.GiveType;
+                var giveType = ((FunctionSymbol)currentFunctionSymbol).GiveType;
 
                 // Check if there is give type or there is no expression.
                 if (giveType != null || node.Expr == null)
                 {
                     // Return if give type equals the expression type,
                     // syntax is correct.
-                    if (giveType == exprType)
+                    if (giveType.IsEqual(exprType))
                         return null;
 
                     // Throw a Boink error if the types don't match.
@@ -549,10 +700,10 @@ namespace Boink.Analysis.Semantic
             Visit(node.Expr);
 
             // Check if the expression type is a Boink boolean.
-            if (node.Expr.Type != typeof(BoolType))
+            if (node.Expr.ChildOrOwnType != new BoinkType(typeof(BoolType)))
             {
                 // Throw a Boink error if the type is not a bool_.
-                ErrorHandler.Throw(new IncompatibleTypesError($"Type {node.Expr.Type} is not compatible for if preposition",
+                ErrorHandler.Throw(new IncompatibleTypesError($"Type {node.Expr.ChildOrOwnType} is not compatible for if preposition",
                                                               node.Expr.Pos, FilePath));
             }
 
@@ -612,9 +763,9 @@ namespace Boink.Analysis.Semantic
             // Visit the expression.
             Visit(node.Expr);
 
-            if (node.Type == null)
+            if (node.ChildOrOwnType == null)
             {
-                ErrorHandler.Throw(new UnsupportedOperationError($"Type {node.Expr.Type.Name} doesn't support {OperationTypes.GetUnaryOperationByTokenType(node.Operator.Type)}",
+                ErrorHandler.Throw(new UnsupportedOperationError($"Type {node.Expr.ChildOrOwnType.Name} doesn't support {OperationTypes.GetUnaryOperationByTokenType(node.Operator.Type)}",
                                                                  node.Pos, FilePath));
             }
             return null;

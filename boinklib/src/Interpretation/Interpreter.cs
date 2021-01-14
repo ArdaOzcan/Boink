@@ -51,6 +51,11 @@ namespace Boink.Interpretation
             if (Verbose) Console.WriteLine(text);
         }
 
+        public override object Visit(TypeDefinitionSyntax node)
+        {
+            return null;
+        }
+
         /// <summary>
         /// Create an ActivationRecord and visit every statement.
         /// </summary>

@@ -21,20 +21,20 @@ namespace Boink.AST.Nodes
 
         public SyntaxNode ChildReference { get; set; }
 
-        public override Type Type
+        public override BoinkType ChildOrOwnType
         {
             get
             {
                 if(ChildReference != null)
-                    return ChildReference.Type;
+                    return ChildReference.ChildOrOwnType;
                 
                 
-                Type leftType = Left.Type;
-                Type rightType = Right.Type;
+                Type leftType = Left.ChildOrOwnType.CSType;
+                Type rightType = Right.ChildOrOwnType.CSType;
 
                 int pos = Pos;
 
-                return OperationTypes.GetBinaryResultType(leftType, Operator.Type, rightType, pos);
+                return new BoinkType(OperationTypes.GetBinaryResultType(leftType, Operator.Type, rightType, pos));
             }
         }
 

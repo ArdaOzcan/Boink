@@ -19,15 +19,15 @@ namespace Boink.AST.Nodes
 
         public override int Pos => Operator.Pos;
 
-        public override Type Type 
+        public override BoinkType ChildOrOwnType 
         {
             get 
             {
                 if(ChildReference != null)
-                    return ChildReference.Type;
+                    return ChildReference.ChildOrOwnType;
 
-                if(OperationTypes.TypeSupportsUnaryOperation(Expr.Type, Operator.Type, Pos))
-                    return Expr.Type;
+                if(OperationTypes.TypeSupportsUnaryOperation(Expr.ChildOrOwnType.CSType, Operator.Type, Pos))
+                    return Expr.ChildOrOwnType;
                 
                 return null;
             }

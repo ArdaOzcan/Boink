@@ -18,13 +18,19 @@ namespace Boink.AST.Nodes
 
         public SyntaxNode Expr { get; }
 
-        public override Type Type
+        public BoinkType UserDefinedType { private get; set; }
+
+        public override BoinkType ChildOrOwnType
         {
             get
             {
                 Type type = null;
                 ObjectType.TypeDictionary.TryGetValue(VarType.TypeToken.Type, out type);
-                return type;
+
+                if(type != null)
+                    return new BoinkType(type);
+                
+                return UserDefinedType;
             }
         }
 

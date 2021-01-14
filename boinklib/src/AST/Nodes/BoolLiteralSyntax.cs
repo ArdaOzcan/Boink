@@ -15,14 +15,14 @@ namespace Boink.AST.Nodes
 
         public object Val { get; private set; }
 
-        public override Type Type 
+        public override BoinkType ChildOrOwnType 
         {
             get
             {
                 if(ChildReference != null)
-                    return ChildReference.Type;
+                    return ChildReference.ChildOrOwnType;
                     
-                return typeof(BoolType);
+                return new BoinkType(typeof(BoolType));
             }
         }
 
