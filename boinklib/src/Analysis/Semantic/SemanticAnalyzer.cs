@@ -188,13 +188,72 @@ namespace Boink.Analysis.Semantic
                     else
                     {
                         // ERROR
-                        Console.WriteLine("Error");
+                        Console.WriteLine(varSymbol + " is already defined.");
                     }
 
+                }
+                else
+                {
+                    Console.WriteLine("Illegal");
                 }
 
                 symbol.SymbolTable = CurrentScope;
             }
+
+            foreach (var statement in node.Statements)
+            {
+                if (statement.GetType() == typeof(FunctionSyntax))
+                {
+                    var funcNode = (FunctionSyntax)statement;
+                    string functionName = (string)funcNode.Name.Val;
+
+                    FunctionSymbol owner = (FunctionSymbol)CurrentScope.Lookup(functionName);
+                    var funcScope = new SymbolTable(functionName, owner, CurrentScope);
+
+                    // Set the current scope to function's scope.
+                    CurrentScope = scope;
+
+                    // Visit arguments for declaration.
+                    foreach (var a in funcNode.Args)
+                        Visit(a);
+
+                    BoinkType giveType = new BoinkType();
+                    if (funcNode.GiveTypeSyntax != null)
+                    {
+                        var tokenType = funcNode.GiveTypeSyntax.TypeToken.Type;
+                        giveType = new BoinkType(ObjectType.GetTypeByTokenType(tokenType));
+                    }
+
+                    CurrentScope = funcScope;
+
+
+                    bool hasGiven = false;
+                    foreach (var s in funcNode.Statements)
+                    {
+                        // Set hasGive is a statement is a GiveSyntax
+                        if (s.GetType() == typeof(GiveSyntax))
+                            hasGiven = true;
+
+                        Visit(s);
+
+                        // Set the current scope for the next statement.
+                        CurrentScope = funcScope;
+                    }
+
+                    // Check if the function either doesn't give or has a give type.
+                    if ((giveType.CSType != null || giveType.UType != null) && !hasGiven)
+                    {
+                        ErrorHandler.Throw(new NoGiveError($"Function {funcNode.Name.Val} doesn't give any value even though it has a give type of {giveType}",
+                                               funcNode.Pos, FilePath));
+                    }
+                }
+                else if (statement.GetType() != typeof(DeclarationSyntax))
+                {
+                    Console.WriteLine("Illegal");
+                }
+
+            }
+
 
             scope.Owner = symbol;
 
@@ -358,7 +417,7 @@ namespace Boink.Analysis.Semantic
                                     var methodInfo = kv.Value;
                                     if (methodInfo == null)
                                         break;
-                                        
+
                                     var args = methodInfo.GetParameters();
                                     List<BoinkType> argTypes = new List<BoinkType>();
 
@@ -492,7 +551,7 @@ namespace Boink.Analysis.Semantic
                     Visit(node.Expr);
 
                     // Check if types match.
-                    if (node.Expr.ChildOrOwnType!= null && !node.Expr.ChildOrOwnType.IsEqual(varType))
+                    if (node.Expr.ChildOrOwnType != null && !node.Expr.ChildOrOwnType.IsEqual(varType))
                     {
                         // There is a type mismatch, throw a Boink error.
                         ErrorHandler.Throw(new IncompatibleTypesError($"Type {node.Expr.ChildOrOwnType} and {varType} are not compatible for assignment",
@@ -663,7 +722,7 @@ namespace Boink.Analysis.Semantic
                 var giveType = ((FunctionSymbol)currentFunctionSymbol).GiveType;
 
                 // Check if there is give type or there is no expression.
-                if (giveType != null || node.Expr == null)
+                if ((giveType.CSType != null || giveType.UType != null) || node.Expr == null)
                 {
                     // Return if give type equals the expression type,
                     // syntax is correct.
