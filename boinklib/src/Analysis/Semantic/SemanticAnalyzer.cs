@@ -331,7 +331,7 @@ namespace Boink.Analysis.Semantic
             }
 
             // Check if the function either doesn't give or has a give type.
-            if (giveType == null || hasGive)
+            if ((giveType.CSType == null && giveType.UType == null) || hasGive)
                 return null;
 
 
@@ -722,7 +722,7 @@ namespace Boink.Analysis.Semantic
                 var giveType = ((FunctionSymbol)currentFunctionSymbol).GiveType;
 
                 // Check if there is give type or there is no expression.
-                if ((giveType.CSType != null || giveType.UType != null) || node.Expr == null)
+                if (giveType != null && (giveType.CSType != null || giveType.UType != null) || node.Expr == null)
                 {
                     // Return if give type equals the expression type,
                     // syntax is correct.

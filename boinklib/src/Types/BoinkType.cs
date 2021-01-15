@@ -51,6 +51,9 @@ namespace Boink.Types
 
         public bool IsEqual(BoinkType other)
         {
+            if(other == null)
+                return false;
+
             return (!IsBuiltin && UType == other.UType) || (IsBuiltin && CSType == other.CSType);
         }
 
