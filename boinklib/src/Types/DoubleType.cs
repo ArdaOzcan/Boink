@@ -8,12 +8,18 @@ namespace Boink.Types
     {
         public static Dictionary<string, MethodInfo> Methods = new Dictionary<string, MethodInfo>
         {
-            {"toString", typeof(DoubleType).GetMethod("DoubleToString")}
+            {"toString", typeof(DoubleType).GetMethod("DoubleToStringMethod")},
+            {"floor", typeof(DoubleType).GetMethod("FloorMethod")},
         };
 
-        public static StringType DoubleToString(object o)
+        public static StringType DoubleToStringMethod(object o)
         {
-            return new StringType(null, ((double)((IntType)o).Val).ToString());
+            return new StringType(null, ((double)((DoubleType)o).Val).ToString());
+        }
+
+        public static DoubleType FloorMethod(object o)
+        {
+            return new DoubleType(null, Math.Floor((double)((DoubleType)o).Val));
         }
 
         public DoubleType(string name, object val) : base(name, val) { }
