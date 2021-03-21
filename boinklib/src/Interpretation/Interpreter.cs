@@ -126,31 +126,91 @@ namespace Boink.Interpretation
                 parentRecord = node.Var.ParentRecord;
 
             ObjectType function = parentRecord.GetVar(funcName);
-            if(function.GetType() == typeof(FunctionType))
-                return VisitUserDefinedFunction((FunctionType)function);
+            ObjectType functionGiveValue = null;
+            if (function.GetType() == typeof(FunctionType))
+                functionGiveValue = (ObjectType)VisitUserDefinedFunction((FunctionType)function);
             else
-                return VisitStandardFunction((StandardFunctionType)function);
+                functionGiveValue = (ObjectType)VisitStandardFunction((StandardFunctionType)function);
+
+
+            if (node.ChildReference != null)
+            {
+                Type type = functionGiveValue.GetType();
+                Type childType = node.ChildReference.GetType();
+                if (type == typeof(PackageType) || type == typeof(LibraryType))
+                {
+                    ActivationRecord record = (ActivationRecord)functionGiveValue.Val;
+
+                    if (childType == typeof(VariableSyntax))
+                        ((VariableSyntax)node.ChildReference).ParentRecord = record;
+                    else if (childType == typeof(FunctionCallSyntax))
+                        ((FunctionCallSyntax)node.ChildReference).Var.ParentRecord = record;
+                }
+                else
+                {
+                    var methodsDictionary = (Dictionary<string, MethodInfo>)type.GetField("Methods").GetValue(null);
+                    ActivationRecord record = new ActivationRecord(type.ToString(), 0, null);
+
+                    foreach (var pair in methodsDictionary)
+                    {
+                        var method = LibraryManager.MethodInfoToStandardFunction(pair.Value, f: true);
+                        method.Target = functionGiveValue;
+                        record.DefineVar(pair.Key, method);
+                    }
+
+                    if (childType == typeof(VariableSyntax))
+                        ((VariableSyntax)node.ChildReference).ParentRecord = record;
+                    else if (childType == typeof(FunctionCallSyntax))
+                        ((FunctionCallSyntax)node.ChildReference).Var.ParentRecord = record;
+                }
+
+                functionGiveValue = (ObjectType)Visit(node.ChildReference);
+            }
+
+            return functionGiveValue;
 
             object VisitStandardFunction(StandardFunctionType func)
             {
                 ParameterInfo[] parameters = ((MethodInfo)func.Val).GetParameters();
                 List<SyntaxNode> passedArgs = node.Args;
                 object[] arguments = new object[parameters.Length];
-                for (int i = 0; i < parameters.Length; i++)
+                if (func.FirstArgIsInstance)
                 {
-                    SyntaxNode passedArg = passedArgs[i];
+                    for (int i = 1; i < parameters.Length; i++)
+                    {
+                        SyntaxNode passedArg = passedArgs[i - 1];
 
-                    Type varType = parameters[i].ParameterType;
+                        Type varType = parameters[i].ParameterType;
 
-                    ConstructorInfo ctorinfo = varType.GetConstructor(new[] { typeof(string), typeof(object) });
+                        ConstructorInfo ctorinfo = varType.GetConstructor(new[] { typeof(string), typeof(object) });
 
-                    ObjectType var = (ObjectType)Visit(passedArg);
+                        ObjectType var = (ObjectType)Visit(passedArg);
 
-                    object val = null;
-                    if (var != null)
-                        val = var.Val;
+                        object val = null;
+                        if (var != null)
+                            val = var.Val;
 
-                    arguments[i] = (ObjectType)ctorinfo.Invoke(new object[] { parameters[i].Name, val });
+                        arguments[i] = (ObjectType)ctorinfo.Invoke(new object[] { parameters[i].Name, val });
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < parameters.Length; i++)
+                    {
+                        SyntaxNode passedArg = passedArgs[i];
+
+                        Type varType = parameters[i].ParameterType;
+
+                        ConstructorInfo ctorinfo = varType.GetConstructor(new[] { typeof(string), typeof(object) });
+
+                        ObjectType var = (ObjectType)Visit(passedArg);
+
+                        object val = null;
+                        if (var != null)
+                            val = var.Val;
+
+                        arguments[i] = (ObjectType)ctorinfo.Invoke(new object[] { parameters[i].Name, val });
+                    }
                 }
 
                 WriteLineIfVerbose($"------- START OF FUNCTION {funcName} -------");
@@ -239,12 +299,12 @@ namespace Boink.Interpretation
 
             ObjectType variable;
 
-            if(node.ParentRecord == null)
+            if (node.ParentRecord == null)
                 variable = ProgramCallStack.Peek.GetVar(varName);
             else
                 variable = node.ParentRecord.GetVar(varName);
 
-            if(node.ChildReference != null)
+            if (node.ChildReference != null)
             {
                 Type type = variable.GetType();
                 if (type == typeof(PackageType) || type == typeof(LibraryType))
@@ -254,31 +314,48 @@ namespace Boink.Interpretation
 
                     if (childType == typeof(VariableSyntax))
                         ((VariableSyntax)node.ChildReference).ParentRecord = record;
-    
-                    else if(childType == typeof(FunctionCallSyntax))
+
+                    else if (childType == typeof(FunctionCallSyntax))
                         ((FunctionCallSyntax)node.ChildReference).Var.ParentRecord = record;
-                    
+
                     variable = (ObjectType)Visit(node.ChildReference);
                 }
                 else
                 {
-                    var childReference = ((FunctionCallSyntax)node.ChildReference);
-                    var functionName = childReference.Var.Name;
+                    // var childReference = ((FunctionCallSyntax)node.ChildReference);
+                    // var functionName = childReference.Var.Name;
 
-                    var args = new object[childReference.Args.Count + 1];
+                    // var args = new object[childReference.Args.Count + 1];
 
-                    // First argument is an object reference
-                    // because the real methods have to be static
-                    args[0] = variable;
+                    // // First argument is an object reference
+                    // // because the real methods have to be static
+                    // args[0] = variable;
 
-                    // Offsetted arguments
-                    for (int i = 1; i < args.Length; i++)
+                    // // Start from the second argument
+                    // for (int i = 1; i < args.Length; i++)
+                    // {
+                    //     args[i] = Visit(childReference.Args[i - 1]);
+                    // }
+
+                    // var methodsDictionary = (Dictionary<string, MethodInfo>)type.GetField("Methods").GetValue(null);
+                    // variable = (ObjectType)methodsDictionary[functionName].Invoke(null, args);
+                    Type childType = node.ChildReference.GetType();
+                    var methodsDictionary = (Dictionary<string, MethodInfo>)type.GetField("Methods").GetValue(null);
+                    ActivationRecord record = new ActivationRecord(type.ToString(), 0, null);
+
+                    foreach (var pair in methodsDictionary)
                     {
-                        args[i] = Visit(childReference.Args[i - 1]);
+                        var method = LibraryManager.MethodInfoToStandardFunction(pair.Value, f: true);
+                        method.Target = variable;
+                        record.DefineVar(pair.Key, method);
                     }
 
-                    var methodsDictionary = (Dictionary<string, MethodInfo>)type.GetField("Methods").GetValue(null);
-                    variable = (ObjectType)methodsDictionary[functionName].Invoke(null, args);
+                    if (childType == typeof(VariableSyntax))
+                        ((VariableSyntax)node.ChildReference).ParentRecord = record;
+                    else if (childType == typeof(FunctionCallSyntax))
+                        ((FunctionCallSyntax)node.ChildReference).Var.ParentRecord = record;
+
+                    variable = (ObjectType)Visit(node.ChildReference);
                 }
             }
 
@@ -410,17 +487,17 @@ namespace Boink.Interpretation
 
         public override object Visit(ImportSyntax node)
         {
-            if(DirCache.HasLibraryOrPackage(node.Package.Hierarchy))
+            if (DirCache.HasLibraryOrPackage(node.Package.Hierarchy))
             {
                 var importable = DirCache.GetLibraryOrPackageObject(node.Package.Hierarchy);
                 ProgramCallStack.Peek.DefineVar(importable.Name, importable);
-                
+
                 return null;
             }
 
             var stdlib = LibraryManager.GetStandardLibraryObject(node.Package.Root);
             ProgramCallStack.Peek.DefineVar(stdlib.Name, stdlib);
-                        
+
             return null;
         }
 

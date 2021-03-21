@@ -43,6 +43,9 @@ namespace Boink.AST.Nodes
                     argumentJsonList.Add(arg.JsonDict);
 
                 dict.Add("Arguments", argumentJsonList);
+                
+                if (ChildReference != null)
+                    dict.Add("Child Reference", ChildReference.JsonDict);
 
                 result.Add("FunctionCallSyntax", dict);
 

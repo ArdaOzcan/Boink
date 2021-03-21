@@ -4,14 +4,20 @@ namespace Boink.Types
 {
     public sealed class StandardFunctionType : ObjectType
     {
-        public StandardFunctionType(string name, object val) : base(name, val)
-        {
+        public object Target { get; set; }
+        public bool FirstArgIsInstance { get; }
 
+        public StandardFunctionType(string name, object val, bool firstArgIsInstance = false) : base(name, val)
+        {
+            FirstArgIsInstance = firstArgIsInstance;
         }
 
         public ObjectType InvokeFunction(object[] args)
         {
-            return (ObjectType)((MethodInfo)Val).Invoke(null, args);
+            if (FirstArgIsInstance)
+                args[0] = Target;
+
+            return (ObjectType)((MethodInfo)Val).Invoke(Target, args);
         }
 
         public override ObjectType DeepCopy()

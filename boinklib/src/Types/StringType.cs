@@ -7,12 +7,28 @@ namespace Boink.Types
     {
         public static Dictionary<string, MethodInfo> Methods = new Dictionary<string, MethodInfo>
         {
-            {"subString", typeof(StringType).GetMethod("SubString")}
+            {"subString", typeof(StringType).GetMethod("SubString")},
+            {"toInt", typeof(StringType).GetMethod("StringToInt")},
+            {"split", typeof(StringType).GetMethod("StringSplit")}
         };
+
+        public static StringType StringSplit(object o, StringType delimeter, IntType index)
+        {
+            string val = (string)((StringType)o).Val;
+            string delimeterStr = (string)delimeter.Val;
+            string returnVal = val.Split(delimeterStr.ToCharArray())[(int)index.Val];
+
+            return new StringType(null, returnVal);
+        }
 
         public static StringType SubString(object o, IntType start, IntType end)
         {
             return new StringType(null, ((string)((StringType)o).Val).Substring((int)start.Val, (int)end.Val));
+        }
+
+        public static IntType StringToInt(object o)
+        {
+            return new IntType(null, int.Parse((string)((StringType)o).Val));
         }
 
         public StringType(string name, object val) : base(name, val)

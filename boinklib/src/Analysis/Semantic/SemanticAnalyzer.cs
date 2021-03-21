@@ -290,7 +290,7 @@ namespace Boink.Analysis.Semantic
             if (node.GiveTypeSyntax != null)
             {
                 var tokenType = node.GiveTypeSyntax.TypeToken.Type;
-                giveType = new BoinkType(ObjectType.GetTypeByTokenType(tokenType));
+                giveType = new BoinkType(ObjectType.GetTypeByTokenType(tokenType)); // TODO: Support for user & imported types
             }
 
             if (CurrentScope.Owner != null && CurrentScope.Owner.GetType() == typeof(ClassSymbol)
@@ -476,16 +476,15 @@ namespace Boink.Analysis.Semantic
             ErrorHandler.Throw(new UndefinedSymbolError($"Variable '{node.Name}' is not defined",
                                                         node.Pos, FilePath));
             return null;
+        }
+        static void SetChildsParentScope(IParentSyntax thisNode, SymbolTable parentScope)
+        {
+            Type childType = thisNode.ChildReference.GetType();
+            if (childType == typeof(VariableSyntax))
+                ((VariableSyntax)thisNode.ChildReference).ParentScope = parentScope;
 
-            void SetChildsParentScope(VariableSyntax thisNode, SymbolTable parentScope)
-            {
-                Type childType = thisNode.ChildReference.GetType();
-                if (childType == typeof(VariableSyntax))
-                    ((VariableSyntax)thisNode.ChildReference).ParentScope = parentScope;
-
-                else if (childType == typeof(FunctionCallSyntax))
-                    ((FunctionCallSyntax)thisNode.ChildReference).Var.ParentScope = parentScope;
-            }
+            else if (childType == typeof(FunctionCallSyntax))
+                ((FunctionCallSyntax)thisNode.ChildReference).Var.ParentScope = parentScope;
         }
 
         /// <summary>
@@ -685,6 +684,79 @@ namespace Boink.Analysis.Semantic
 
                         AddLog($"CALL: Function {functionSymbol.Name} called with arguments {{{string.Join(", ", functionSymbol.ArgTypes)}}}");
                     }
+                }
+
+                if (node.ChildReference != null)
+                {
+                    SymbolTable parentScope = null;
+
+                    Type symbolType = symbol.GetType();
+                    if (symbolType == typeof(PackageSymbol))
+                        parentScope = ((PackageSymbol)symbol).GlobalScope;
+
+                    else if (symbolType == typeof(LibrarySymbol))
+                        parentScope = ((LibrarySymbol)symbol).Importables;
+
+                    else if (symbolType == typeof(FunctionSymbol) || symbolType == typeof(VarSymbol) || symbolType == typeof(ClassSymbol))
+                    {
+                        var scope = new SymbolTable(node.Var.Name, null, null);
+
+                        // FieldInfo fieldInfo = node.VarType.GetField("Methods");
+                        if (node.VarType.IsBuiltin)
+                        {
+                            FieldInfo fieldInfo = node.VarType.CSType.GetField("Methods");
+                            if (fieldInfo != null)
+                            {
+                                object methodsObj = fieldInfo.GetValue(null);
+
+                                Dictionary<string, MethodInfo> methodsDictionary = (Dictionary<string, MethodInfo>)methodsObj;
+
+                                foreach (var kv in methodsDictionary)
+                                {
+                                    var methodName = kv.Key;
+                                    var methodInfo = kv.Value;
+                                    if (methodInfo == null)
+                                        break;
+
+                                    var args = methodInfo.GetParameters();
+                                    List<BoinkType> _argTypes = new List<BoinkType>();
+
+                                    // i is 1 because the first real parameter
+                                    // is an object reference since the actual
+                                    // method is static.
+                                    // Boink should ignore the first parameter
+                                    // while creating a function symbol.
+                                    for (int i = 1; i < args.Length; i++)
+                                    {
+                                        _argTypes.Add(new BoinkType(args[i].ParameterType));
+                                    }
+
+                                    scope.Add(methodName, new FunctionSymbol(_argTypes, methodName, new BoinkType(methodInfo.ReturnType)));
+                                }
+                            }
+                            parentScope = scope;
+
+                        }
+                        else if (node.VarType.IsUserDefined)
+                        {
+                            var classInfo = BoinkType.userTypes[node.VarType.Name];
+
+                            foreach (var method in classInfo.Methods)
+                            {
+                                scope.Add(method.Name, method);
+                            }
+
+                            foreach (var field in classInfo.Fields)
+                            {
+                                scope.Add(field.Name, field);
+                            }
+                        }
+                        parentScope = scope;
+                    }
+
+                    SetChildsParentScope(node, parentScope);
+
+                    Visit(node.ChildReference);
                 }
 
                 return null;

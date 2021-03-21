@@ -56,7 +56,7 @@ namespace Boink.Interpretation.Library
             LoadedLibraries.Add(type, symbolTable);
         }
 
-        public static StandardFunctionType GetStandardFunctionObject(MethodInfo methodInfo) => new StandardFunctionType(methodInfo.Name, methodInfo);
+        public static StandardFunctionType MethodInfoToStandardFunction(MethodInfo methodInfo, bool f=false) => new StandardFunctionType(methodInfo.Name, methodInfo, firstArgIsInstance: f);
 
         public static LibraryType GetStandardLibraryObject(string name)
         {
@@ -71,7 +71,7 @@ namespace Boink.Interpretation.Library
                 foreach(var info in parameterInfos)
                     argTypes.Add(info.ParameterType);
 
-                libRecord.DefineVar(method.Name, GetStandardFunctionObject(method));     
+                libRecord.DefineVar(method.Name, MethodInfoToStandardFunction(method));     
             }
 
             return new LibraryType(name, libRecord);

@@ -258,9 +258,20 @@ namespace Boink.Analysis.Parsing
                 // Is a function call
                 // Parse call arguments
                 List<SyntaxNode> args = ParseCallArguments();
+                var function = new FunctionCallSyntax(childVar, args);
+
+                if (CurrentToken.Type == TokenType.Dot)
+                {
+                    // Set the child reference of the variable.
+                    function.ChildReference = ParseChildReference();
+
+                    // Get the type of the child reference syntax.
+                    var varType = function.ChildReference.GetType();
+
+                }
 
                 // Return a new FunctionCallSyntax.
-                return new FunctionCallSyntax(childVar, args);
+                return function;
             }
 
             // Return the parsed variable.
