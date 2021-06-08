@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-
+using Boink.Analysis.Semantic.Symbols;
 using Boink.Analysis.Tokenization;
 using Boink.AST.Nodes;
 using Boink.Errors;
-
+using Boink.Types;
 
 namespace Boink.Analysis.Parsing
 {
@@ -17,14 +17,6 @@ namespace Boink.Analysis.Parsing
     /// </summary>
     public sealed class Parser
     {
-
-        /// <summary>
-        /// Token types that are for type declarations.
-        /// - int
-        /// - bool 
-        /// - float 
-        /// - dyn
-        /// </summary>
         static HashSet<TokenType> TypeTokens = new HashSet<TokenType>
         {
             TokenType.IntType,
@@ -36,13 +28,6 @@ namespace Boink.Analysis.Parsing
 
         static HashSet<string> UserDefinedTypeNames = new HashSet<string>();
 
-        /// <summary>
-        /// Token types that are for binary operations.
-        /// - +
-        /// - -
-        /// - ||
-        /// - ==
-        /// </summary>
         static HashSet<TokenType> BinaryOperatorTokens = new HashSet<TokenType>
         {
             TokenType.Plus,
@@ -64,12 +49,7 @@ namespace Boink.Analysis.Parsing
         static HashSet<TokenType> TermOperators = new HashSet<TokenType>
         {
             TokenType.Star,
-            TokenType.Slash,
-            // TokenType.Greater,
-            // TokenType.GreaterEquals,
-            // TokenType.Less,
-            // TokenType.LessEquals,
-            // TokenType.EqualsEquals
+            TokenType.Slash
         };
 
         /// <summary>
@@ -97,6 +77,8 @@ namespace Boink.Analysis.Parsing
             FilePath = lexer.FilePath;
             CurrentToken = ProgramLexer.GetNextToken();
         }
+
+        bool IsTypeToken(Token t) => TypeTokens.Contains(t.Type) || (t.Type == TokenType.Word && UserDefinedTypeNames.Contains((string)t.Val));
 
         /// <summary>
         /// Log the parse tree with header and footer.
@@ -522,7 +504,8 @@ namespace Boink.Analysis.Parsing
             while (true)
             {
                 // Check if the current token is a type token.
-                if (!TypeTokens.Contains(CurrentToken.Type))
+                // TODO: Fix
+                if (!IsTypeToken(CurrentToken))
                     // Break if not.
                     break;
 
@@ -592,8 +575,7 @@ namespace Boink.Analysis.Parsing
             Token token = null;
 
             // Check if the current token is a type token.
-            if (TypeTokens.Contains(CurrentToken.Type)
-                || (CurrentToken.Type == TokenType.Word && UserDefinedTypeNames.Contains((string)CurrentToken.Val)))
+            if (IsTypeToken(CurrentToken))
             {
                 token = CurrentToken;
                 Consume(CurrentToken.Type);
@@ -663,7 +645,7 @@ namespace Boink.Analysis.Parsing
         /// <returns>SyntaxNode representation of the statement.</returns>
         public SyntaxNode ParseStatement()
         {
-            if (TypeTokens.Contains(CurrentToken.Type) || (CurrentToken.Val != null && UserDefinedTypeNames.Contains(CurrentToken.Val.ToString())))
+            if (IsTypeToken(CurrentToken))
                 // Is a type name, so a declaration.
                 return ParseDeclaration();
 

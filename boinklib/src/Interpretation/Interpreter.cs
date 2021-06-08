@@ -53,6 +53,12 @@ namespace Boink.Interpretation
 
         public override object Visit(TypeDefinitionSyntax node)
         {
+            ActivationRecord ar = ProgramCallStack.Peek;
+            string val = (string)node.Name.Val;
+            ClassType class_ = new ClassType(val, node.Statements);
+            class_.ParentRecord = ar;
+            ar.DefineVar((string)node.Name.Val, class_);
+
             return null;
         }
 
@@ -93,17 +99,34 @@ namespace Boink.Interpretation
         public override object Visit(DeclarationSyntax node)
         {
             Type varType = ObjectType.GetTypeByTokenType(node.VarType.TypeToken.Type);
+            object val = null;
+            ActivationRecord ar = ProgramCallStack.Peek;
+            bool isUserType = false;
+            if (varType == null)
+            {
+                isUserType = true;
+                varType = typeof(MemberType);
+            }
+
             ConstructorInfo ctorinfo = varType.GetConstructor(new[] { typeof(string), typeof(object) });
 
             ObjectType var = null;
-            object val = null;
             if (node.Expr != null)
             {
                 var = (ObjectType)Visit(node.Expr);
                 val = var.Val;
+
+                if (isUserType)
+                {
+                    ar.DefineVar(node.Name, MemberType.Assign(node.Name, (MemberType)var));
+                    return null;
+                }
+            }
+            else if (isUserType)
+            {
+                val = ar.GetVar((string)node.VarType.TypeToken.Val);
             }
 
-            ActivationRecord ar = ProgramCallStack.Peek;
             ar.DefineVar(node.Name, (ObjectType)ctorinfo.Invoke(new object[] { node.Name, val }));
             return null;
         }
@@ -241,6 +264,9 @@ namespace Boink.Interpretation
 
                     TokenType tokenType = argDecl.VarType.TypeToken.Type;
                     Type varType = ObjectType.GetTypeByTokenType(tokenType);
+                    if(varType == null) {
+                        varType = typeof(MemberType);
+                    }
 
                     ConstructorInfo ctorinfo = varType.GetConstructor(new[] { typeof(string), typeof(object) });
 
@@ -283,7 +309,9 @@ namespace Boink.Interpretation
         {
             ActivationRecord ar = ProgramCallStack.Peek;
             string val = (string)node.Name.Val;
-            ar.DefineVar((string)node.Name.Val, new FunctionType(val, node.Statements, node.Args));
+            FunctionType function = new FunctionType(val, node.Statements, node.Args);
+            
+            ar.DefineVar((string)node.Name.Val, function);
 
             return null;
         }
@@ -312,54 +340,43 @@ namespace Boink.Interpretation
                     Type childType = node.ChildReference.GetType();
                     ActivationRecord record = (ActivationRecord)variable.Val;
 
-                    if (childType == typeof(VariableSyntax))
-                        ((VariableSyntax)node.ChildReference).ParentRecord = record;
-
-                    else if (childType == typeof(FunctionCallSyntax))
-                        ((FunctionCallSyntax)node.ChildReference).Var.ParentRecord = record;
+                    AssignRecordToChild(childType, record);
 
                     variable = (ObjectType)Visit(node.ChildReference);
                 }
                 else
                 {
-                    // var childReference = ((FunctionCallSyntax)node.ChildReference);
-                    // var functionName = childReference.Var.Name;
-
-                    // var args = new object[childReference.Args.Count + 1];
-
-                    // // First argument is an object reference
-                    // // because the real methods have to be static
-                    // args[0] = variable;
-
-                    // // Start from the second argument
-                    // for (int i = 1; i < args.Length; i++)
-                    // {
-                    //     args[i] = Visit(childReference.Args[i - 1]);
-                    // }
-
-                    // var methodsDictionary = (Dictionary<string, MethodInfo>)type.GetField("Methods").GetValue(null);
-                    // variable = (ObjectType)methodsDictionary[functionName].Invoke(null, args);
                     Type childType = node.ChildReference.GetType();
-                    var methodsDictionary = (Dictionary<string, MethodInfo>)type.GetField("Methods").GetValue(null);
                     ActivationRecord record = new ActivationRecord(type.ToString(), 0, null);
-
-                    foreach (var pair in methodsDictionary)
+                    if (type != typeof(MemberType))
                     {
-                        var method = LibraryManager.MethodInfoToStandardFunction(pair.Value, f: true);
-                        method.Target = variable;
-                        record.DefineVar(pair.Key, method);
+                        var methodsDictionary = (Dictionary<string, MethodInfo>)type.GetField("Methods").GetValue(null);
+
+                        foreach (var pair in methodsDictionary)
+                        {
+                            var method = LibraryManager.MethodInfoToStandardFunction(pair.Value, f: true);
+                            method.Target = variable;
+                            record.DefineVar(pair.Key, method);
+                        }
+
+                    } else {
+                        record = ((MemberType)variable).AR;
                     }
 
-                    if (childType == typeof(VariableSyntax))
-                        ((VariableSyntax)node.ChildReference).ParentRecord = record;
-                    else if (childType == typeof(FunctionCallSyntax))
-                        ((FunctionCallSyntax)node.ChildReference).Var.ParentRecord = record;
-
+                    AssignRecordToChild(childType, record);
                     variable = (ObjectType)Visit(node.ChildReference);
                 }
             }
 
             return variable;
+
+            void AssignRecordToChild(Type childType, ActivationRecord record)
+            {
+                if (childType == typeof(VariableSyntax))
+                    ((VariableSyntax)node.ChildReference).ParentRecord = record;
+                else if (childType == typeof(FunctionCallSyntax))
+                    ((FunctionCallSyntax)node.ChildReference).Var.ParentRecord = record;
+            }
         }
 
         /// <summary>
@@ -411,32 +428,22 @@ namespace Boink.Interpretation
         {
             string varName = node.Var.Name;
             ObjectType varValue = (ObjectType)Visit(node.Expr);
-
             ActivationRecord ar = ProgramCallStack.Peek;
+            if(node.Var.ChildReference != null) {
+                MemberType member = (MemberType)ar.GetVar(varName);
+                member.AR.SetVar(((VariableSyntax)node.Var.ChildReference).Name, varValue);
+                return null;
+            }
+
             ar.SetVar(varName, varValue);
 
             return null;
         }
 
-        /// <summary>
-        /// Return the Boink int_ object.
-        /// </summary>
-        /// <param name="node">Int literal syntax node.</param>
-        /// <returns>Boink int_ object.</returns>
         public override object Visit(IntLiteralSyntax node) => new IntType(null, (int)node.Val);
 
-        /// <summary>
-        /// Return the Boink float_ object.
-        /// </summary>
-        /// <param name="node">Float literal syntax node.</param>
-        /// <returns>Boink float_ object.</returns>
         public override object Visit(DoubleLiteralSyntax node) => new DoubleType(null, (double)node.Val);
 
-        /// <summary>
-        /// Return the Boink bool_ object.
-        /// </summary>
-        /// <param name="node">Bool literal syntax node.</param>
-        /// <returns>Boink bool_ object.</returns>
         public override object Visit(BoolLiteralSyntax node) => new BoolType(null, (bool)node.Val);
 
         /// <summary>

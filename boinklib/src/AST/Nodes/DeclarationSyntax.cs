@@ -41,7 +41,7 @@ namespace Boink.AST.Nodes
                 var result = new Dictionary<string, object>();
                 var dict = new Dictionary<string, object>();
 
-                dict.Add("Variable Type", VarType.JsonDict);
+                dict.Add("VariableType", VarType.JsonDict);
                 dict.Add("Name", Name);
                 if (Expr != null)
                     dict.Add("Expression", Expr.JsonDict);

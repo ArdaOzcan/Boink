@@ -253,7 +253,7 @@ Parsed tree would be as follows for this code:
                     "Arguments": [
                         {
                             "DeclarationSyntax": {
-                                "Variable Type": {
+                                "VariableType": {
                                     "TypeSyntax": {
                                         "Token": "<IntType: 'int'>"
                                     }
@@ -265,7 +265,7 @@ Parsed tree would be as follows for this code:
                     "Statements": [
                         {
                             "DeclarationSyntax": {
-                                "Variable Type": {
+                                "VariableType": {
                                     "TypeSyntax": {
                                         "Token": "<IntType: 'int'>"
                                     }

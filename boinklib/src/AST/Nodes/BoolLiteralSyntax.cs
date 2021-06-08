@@ -35,7 +35,7 @@ namespace Boink.AST.Nodes
                 var result = new Dictionary<string, object>();
                 var dict = new Dictionary<string, object>();
                 if (ChildReference != null)
-                    dict.Add("Child Reference", ChildReference.JsonDict);
+                    dict.Add("ChildReference", ChildReference.JsonDict);
 
                 result.Add("BoolLiteralSyntax", dict);
 

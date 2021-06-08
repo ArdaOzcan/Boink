@@ -48,6 +48,12 @@ namespace Boink.Analysis.Semantic
                 this[symbol.Name] = symbol;
         }
 
+        public void Define(string name, Symbol symbol) 
+        {
+            if(name != null)
+                this[name] = symbol;
+        }
+
         /// <summary>
         /// Check the current scope and then the outer scopes.
         /// If the name is not defined, return null, otherwise

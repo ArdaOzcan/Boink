@@ -104,6 +104,7 @@ namespace Boink.Analysis.Semantic
 
             string typeName = (string)node.Name.Val;
             var symbol = new ClassSymbol(typeName);
+            scope.Define("self", symbol);
 
             CurrentScope.Define(symbol);
 
@@ -125,7 +126,21 @@ namespace Boink.Analysis.Semantic
 
                     var argTypes = new List<BoinkType>();
                     foreach (var a in funcNode.Args)
+                    {
+                        string argTypeName = (string)a.VarType.TypeToken.Val;
+                        var userDefinedType = CurrentScope.Lookup(argTypeName);
+                        var builtinType = ObjectType.GetTypeByTokenType(a.VarType.TypeToken.Type);
+
+                        BoinkType varType = null;
+                        if (builtinType != null)
+                            varType = new BoinkType(builtinType);
+                        if (varType == null && userDefinedType.GetType() == typeof(ClassSymbol))
+                        {
+                            varType = new BoinkType(BoinkType.userTypes[argTypeName]);
+                            a.UserDefinedType = varType;
+                        }
                         argTypes.Add(a.ChildOrOwnType);
+                    }
 
                     // Determine the give type as an obj_ type.
                     BoinkType giveType = new BoinkType();
@@ -578,11 +593,13 @@ namespace Boink.Analysis.Semantic
         /// </summary>
         /// <param name="node">Assignment syntax node.</param>
         /// <returns>Null.</returns>
+        /// TODO: Add a new error if user tries to assign to library variables
         public override object Visit(AssignmentSyntax node)
         {
             // Lookup the variable.
             var symbol = CurrentScope.Lookup(node.Var.Name);
 
+            Visit(node.Var.ChildReference);
             // Visit the assigned expression.
             Visit(node.Expr);
 
@@ -592,17 +609,17 @@ namespace Boink.Analysis.Semantic
                 // Variable is defined.
 
                 // Check if the types match.
-                if (node.Expr.ChildOrOwnType.IsEqual(symbol.VarType))
+                if (node.Expr.ChildOrOwnType.IsEqual(node.Var.ChildOrOwnType))
                 {
                     // Types match.
 
                     // Add log.
-                    AddLog($"ASSIGNMENT: Assigned {node.Expr.ChildOrOwnType} to {symbol.VarType}.");
+                    AddLog($"ASSIGNMENT: Assigned {node.Expr.ChildOrOwnType} to {node.Var.ChildOrOwnType}.");
                     return null;
                 }
 
                 // Throw a Boink error if types don't match.
-                ErrorHandler.Throw(new IncompatibleTypesError($"Type {node.Expr.ChildOrOwnType} and {symbol.VarType} are not compatible for assignment",
+                ErrorHandler.Throw(new IncompatibleTypesError($"Type {node.Expr.ChildOrOwnType} and {node.Var.ChildOrOwnType} are not compatible for assignment",
                                                               node.Pos, FilePath));
                 return null;
             }

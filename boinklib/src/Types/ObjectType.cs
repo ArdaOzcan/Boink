@@ -6,7 +6,9 @@ using Boink.Analysis.Tokenization;
 namespace Boink.Types
 {
 
-    /// <summary>Base class for all built-in types</summary>
+    /// <summary>Base class for all built-in types
+    /// NOTE: User defined types are also implemented through a built-in type
+    /// </summary>
     public class ObjectType
     {
         public static Dictionary<TokenType, Type> TypeDictionary = new Dictionary<TokenType, Type> 

@@ -52,7 +52,7 @@ namespace Boink.AST.Nodes
                 dict.Add("Name", Name);
 
                 if (ChildReference != null)
-                    dict.Add("Child Reference", ChildReference.JsonDict);
+                    dict.Add("ChildReference", ChildReference.JsonDict);
 
                 result.Add("VariableSyntax", dict);
 

@@ -69,6 +69,10 @@ namespace Boink.Interpretation
             Members.Add(name, value);
         }
 
+        public void AssignMembers(Dictionary<string, ObjectType> other) {
+            Members = other;
+        }
+
         public ObjectType GetVar(string name)
         {
             ObjectType objInCurrentScope = null;
