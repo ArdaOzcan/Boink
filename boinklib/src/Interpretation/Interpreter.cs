@@ -124,7 +124,7 @@ namespace Boink.Interpretation
             }
             else if (isUserType)
             {
-                val = ar.GetVar((string)node.VarType.TypeToken.Val);
+                val = new MemberData((ClassType)ar.GetVar((string)node.ChildOrOwnType.Name));
             }
 
             ar.DefineVar(node.Name, (ObjectType)ctorinfo.Invoke(new object[] { node.Name, val }));
@@ -272,6 +272,7 @@ namespace Boink.Interpretation
 
                     ObjectType var = (ObjectType)Visit(passedArg);
 
+                    // TODO: Proper assignment for MemberType
                     object val = null;
                     if (var != null)
                         val = var.Val;

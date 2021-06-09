@@ -8,28 +8,42 @@ namespace Boink.Types
 {
     public sealed class MemberType : ObjectType
     {
-        private ActivationRecord activationRecord;
-        readonly ClassType memberOf;
 
-        public ActivationRecord AR { get => activationRecord; }
+        public ActivationRecord AR { get => ((MemberData)Val).Attributes; }
+        public ClassType MemberOf { get; }
 
         public MemberType(string name, object val) : base(name, val)
         {
-            memberOf = (ClassType)val;
-            activationRecord = new ActivationRecord(
-                            name: Name,
-                            nestingLevel: 1,
-                            parentRecord: memberOf.ParentRecord
-                        );
-            activationRecord.DefineVar("self", this);
-            Construct();
+            var memberInfo = (MemberData)val;
+            MemberOf = memberInfo.Type;
+            ActivationRecord activationRecord;
+            activationRecord = new ActivationRecord(name: Name,
+                                nestingLevel: 1,
+                                parentRecord: MemberOf.ParentRecord);
+            if (memberInfo.Attributes == null)
+            {
+                activationRecord.DefineVar("self", this);
+                memberInfo.Attributes = activationRecord;
+                Construct();
+            }
+            else
+            {
+                foreach (var item in memberInfo.Attributes.Members)
+                {
+                    if (item.Key.Equals("self"))
+                    {
+                        activationRecord.DefineVar(item.Key, this);
+                        continue;
+                    }
+                    activationRecord.DefineVar(item.Key, item.Value);
+                }
+                memberInfo.Attributes = activationRecord;
+            }
         }
 
         public static MemberType Assign(string name, MemberType other)
         {
-            var thisObj = new MemberType(name, other.memberOf);
-
-            thisObj.activationRecord.AssignMembers(other.activationRecord.Members);
+            var thisObj = new MemberType(name, other.Val);
             return thisObj;
         }
 
@@ -37,13 +51,13 @@ namespace Boink.Types
         {
             var interpreter = new Interpretation.Interpreter(null, new DirectoryCache());
             interpreter.ProgramCallStack.Push(AR);
-            foreach (var statement in (List<SyntaxNode>)memberOf.Val)
+            foreach (var statement in (List<SyntaxNode>)MemberOf.Val)
             {
                 interpreter.Visit(statement);
             }
         }
 
-        public override string ToString() => $"<{memberOf.Name} '{Name}'>";
+        public override string ToString() => $"<{MemberOf.Name} '{Name}'>";
 
         public override ObjectType DeepCopy()
         {
